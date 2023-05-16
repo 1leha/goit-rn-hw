@@ -4,7 +4,6 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
-  Image,
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
@@ -18,6 +17,7 @@ import { useState } from "react";
 import { CustomButton } from "../src/CustomButton";
 import { QuestionButton } from "../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
 
 const initialUserState = {
   userName: "",
@@ -63,6 +63,7 @@ export const RegistrationScreen = function () {
   const onSubmitHandler = () => {
     console.log("newUser :>> ", newUser);
     setNewUser(initialUserState);
+    setIsShowPassword(false);
     closeKeyBoard();
   };
 
@@ -84,9 +85,10 @@ export const RegistrationScreen = function () {
             >
               <ImageBackground source={avatar} style={styles.avtar}>
                 <TouchableOpacity style={styles.addButton} activeOpacity={0.5}>
-                  <Image
-                    style={{ width: 13, height: 13 }}
-                    source={require("../assets/img/plus.png")}
+                  <Ionicons
+                    style={styles.addButtonIcon}
+                    name="add-outline"
+                    size={25}
                   />
                 </TouchableOpacity>
               </ImageBackground>
@@ -234,11 +236,8 @@ const styles = StyleSheet.create({
 
   addButton: {
     position: "absolute",
-
-    flex: 1,
-
-    alignItems: "center",
-    justifyContent: "center",
+    margin: 0,
+    padding: 0,
 
     width: 25,
     height: 25,
@@ -252,6 +251,13 @@ const styles = StyleSheet.create({
     borderColor: "#FF6C00",
     borderWidth: 1,
     borderRadius: 50,
+  },
+
+  addButtonIcon: {
+    // transform: [{ translateY: -2 }],
+    top: -1,
+
+    color: "#FF6C00",
   },
 
   formTitle: {

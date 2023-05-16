@@ -4,7 +4,6 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
-  Image,
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
@@ -18,6 +17,7 @@ import { useState } from "react";
 import { CustomButton } from "../src/CustomButton";
 import { QuestionButton } from "../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const initialUserState = {
   email: "",
@@ -54,107 +54,111 @@ export const LoginScreen = function () {
   const onSubmitHandler = () => {
     console.log("user :>> ", user);
     setUser(initialUserState);
+    setIsShowPassword(false);
+
     closeKeyBoard();
   };
 
   return (
     <TouchableWithoutFeedback onPress={closeKeyBoard}>
-      <SafeAreaView style={styles.container}>
-        <ImageBackground
-          source={require("../assets/img/PhotoBG.jpg")}
-          style={styles.appBg}
-        >
-          <KeyboardAvoidingView
-          // behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <ImageBackground
+            source={require("../assets/img/PhotoBG.jpg")}
+            style={styles.appBg}
           >
-            <View
-              style={{
-                ...styles.form,
-                paddingBottom: isShowKeyboard ? 5 : 45,
-              }}
+            <KeyboardAvoidingView
+            // behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <Text style={styles.formTitle}>Войти</Text>
-              <ScrollView
-                style={{ height: isShowKeyboard ? 150 : 311 }}
-                keyboardShouldPersistTaps="always"
+              <View
+                style={{
+                  ...styles.form,
+                  paddingBottom: isShowKeyboard ? 5 : 45,
+                }}
               >
-                <View style={styles.inputsList}>
-                  <TextInput
-                    placeholder="Адрес электронной почты"
-                    textContentType="emailAddress"
-                    placeholderTextColor="#BDBDBD"
-                    keyboardType="email-address"
-                    style={[
-                      styles.textInputs,
-                      isEmailFocused && styles.inputIsFocused,
-                    ]}
-                    onFocus={onFocusEmailHandler}
-                    onBlur={() => setIsEmailFocused(false)}
-                    onChangeText={(value) =>
-                      setUser((prevState) => ({
-                        ...prevState,
-                        email: value,
-                      }))
-                    }
-                    value={user.email}
-                  />
-
-                  <View style={styles.passwordWrapper}>
+                <Text style={styles.formTitle}>Войти</Text>
+                <ScrollView
+                  style={{ height: isShowKeyboard ? 150 : 311 }}
+                  keyboardShouldPersistTaps="always"
+                >
+                  <View style={styles.inputsList}>
                     <TextInput
-                      textContentType="password"
-                      placeholder="Пароль"
-                      secureTextEntry={!isShowPassword}
+                      placeholder="Адрес электронной почты"
+                      textContentType="emailAddress"
                       placeholderTextColor="#BDBDBD"
-                      keyboardType="default"
+                      keyboardType="email-address"
                       style={[
                         styles.textInputs,
-                        isPasswordFocused && styles.inputIsFocused,
+                        isEmailFocused && styles.inputIsFocused,
                       ]}
-                      onFocus={onFocusPassowordHandler}
-                      onBlur={() => setIsPasswordFocused(false)}
+                      onFocus={onFocusEmailHandler}
+                      onBlur={() => setIsEmailFocused(false)}
                       onChangeText={(value) =>
                         setUser((prevState) => ({
                           ...prevState,
-                          password: value,
+                          email: value,
                         }))
                       }
-                      value={user.password}
+                      value={user.email}
                     />
 
-                    <TouchableOpacity
-                      style={styles.showButton}
-                      activeOpacity={0.5}
-                      onPress={() => setIsShowPassword(!isShowPassword)}
-                    >
-                      <Text style={styles.showButtonText}>Показать</Text>
-                    </TouchableOpacity>
+                    <View style={styles.passwordWrapper}>
+                      <TextInput
+                        textContentType="password"
+                        placeholder="Пароль"
+                        secureTextEntry={!isShowPassword}
+                        placeholderTextColor="#BDBDBD"
+                        keyboardType="default"
+                        style={[
+                          styles.textInputs,
+                          isPasswordFocused && styles.inputIsFocused,
+                        ]}
+                        onFocus={onFocusPassowordHandler}
+                        onBlur={() => setIsPasswordFocused(false)}
+                        onChangeText={(value) =>
+                          setUser((prevState) => ({
+                            ...prevState,
+                            password: value,
+                          }))
+                        }
+                        value={user.password}
+                      />
+
+                      <TouchableOpacity
+                        style={styles.showButton}
+                        activeOpacity={0.5}
+                        onPress={() => setIsShowPassword(!isShowPassword)}
+                      >
+                        <Text style={styles.showButtonText}>Показать</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
 
-                <View style={styles.buttonWrapper}>
-                  <CustomButton
-                    style={styles.registerButton}
-                    activeOpacity={0.7}
-                    onPress={onSubmitHandler}
-                  >
-                    Войти
-                  </CustomButton>
+                  <View style={styles.buttonWrapper}>
+                    <CustomButton
+                      style={styles.registerButton}
+                      activeOpacity={0.7}
+                      onPress={onSubmitHandler}
+                    >
+                      Войти
+                    </CustomButton>
 
-                  <QuestionButton
-                    activeOpacity={0.7}
-                    onPress={() =>
-                      console.log("Нет аккаунта? Зарегистрироваться")
-                    }
-                  >
-                    Нет аккаунта? Зарегистрироваться
-                  </QuestionButton>
-                </View>
-              </ScrollView>
-            </View>
-            <StatusBar style="auto" />
-          </KeyboardAvoidingView>
-        </ImageBackground>
-      </SafeAreaView>
+                    <QuestionButton
+                      activeOpacity={0.7}
+                      onPress={() =>
+                        console.log("Нет аккаунта? Зарегистрироваться")
+                      }
+                    >
+                      Нет аккаунта? Зарегистрироваться
+                    </QuestionButton>
+                  </View>
+                </ScrollView>
+              </View>
+              <StatusBar style="auto" />
+            </KeyboardAvoidingView>
+          </ImageBackground>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </TouchableWithoutFeedback>
   );
 };
