@@ -17,8 +17,8 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <RegistrationScreen />
-      {/* <LoginScreen /> */}
+      {/* <RegistrationScreen /> */}
+      <LoginScreen />
       {/* <PostsScreen /> */}
     </SafeAreaProvider>
   );
