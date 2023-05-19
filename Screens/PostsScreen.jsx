@@ -89,8 +89,10 @@ export const PostsScreen = function () {
                   </View>
 
                   <View style={styles.cardTextWrapper}>
-                    <Text style={styles.userName}>{item.userName}</Text>
-                    <Text style={styles.email}>{item.email}</Text>
+                    <Text style={{ ...styles.userName }}>{item.userName}</Text>
+                    <Text style={{ ...styles.email }}>{item.email}</Text>
+                    {/* <Text style={styles.userName}>{item.userName}</Text> */}
+                    {/* <Text style={styles.email}>{item.email}</Text> */}
                   </View>
                 </View>
               )}
@@ -155,8 +157,6 @@ const styles = StyleSheet.create({
 
     paddingHorizontal: 16,
     paddingVertical: 32,
-
-    // alignItems: "flex-start",
   },
 
   userPostCard: {
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
 
   cardTextWrapper: {
     display: "flex",
-    gap: 0,
+    flexDirection: "column",
   },
 
   userName: {

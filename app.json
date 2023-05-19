@@ -12,15 +12,20 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
+
+    "jsEngine": "hermes",
+
     "ios": {
+      "jsEngine": "jsc",
       "supportsTablet": true
     },
     "android": {
+      "jsEngine": "jsc",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "softwareKeyboardLayoutMode": "pan"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

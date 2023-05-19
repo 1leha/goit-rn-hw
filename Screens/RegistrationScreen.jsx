@@ -18,6 +18,7 @@ import { CustomButton } from "../src/CustomButton";
 import { QuestionButton } from "../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const initialUserState = {
   userName: "",
@@ -67,9 +68,17 @@ export const RegistrationScreen = function () {
     closeKeyBoard();
   };
 
+  const insets = useSafeAreaInsets();
+
   return (
     <TouchableWithoutFeedback onPress={closeKeyBoard}>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={{
+          ...styles.container,
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        }}
+      >
         <ImageBackground
           source={require("../assets/img/PhotoBG.jpg")}
           style={styles.appBg}
@@ -98,7 +107,6 @@ export const RegistrationScreen = function () {
               <ScrollView
                 style={{
                   height: isShowKeyboard ? 160 : 311,
-                  // borderWidth: isShowKeyboard ? 5 : 1,
                 }}
                 keyboardShouldPersistTaps="always"
               >
@@ -168,7 +176,7 @@ export const RegistrationScreen = function () {
                       activeOpacity={0.5}
                       onPress={() => setIsShowPassword(!isShowPassword)}
                     >
-                      <Text style={styles.showButtonText}>Показать</Text>
+                      <Text style={{ ...styles.showButtonText }}>Показать</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
