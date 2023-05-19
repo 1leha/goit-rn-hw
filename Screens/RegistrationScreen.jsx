@@ -75,12 +75,13 @@ export const RegistrationScreen = function () {
           style={styles.appBg}
         >
           <KeyboardAvoidingView
-          // behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={Platform.OS === "ios" ? "padding" : "heigh"}
           >
             <View
               style={{
                 ...styles.form,
-                paddingBottom: isShowKeyboard ? 5 : 45,
+                paddingBottom: isShowKeyboard ? 280 : 45,
+                height: isShowKeyboard ? 590 : 520,
               }}
             >
               <ImageBackground source={avatar} style={styles.avtar}>
@@ -95,7 +96,10 @@ export const RegistrationScreen = function () {
 
               <Text style={styles.formTitle}>Регистрация</Text>
               <ScrollView
-                style={{ height: isShowKeyboard ? 150 : 311 }}
+                style={{
+                  height: isShowKeyboard ? 160 : 311,
+                  // borderWidth: isShowKeyboard ? 5 : 1,
+                }}
                 keyboardShouldPersistTaps="always"
               >
                 <View style={styles.inputsList}>
