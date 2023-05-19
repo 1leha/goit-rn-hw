@@ -3,6 +3,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RegistrationScreen } from "./Screens/RegistrationScreen";
 import { LoginScreen } from "./Screens/LoginScreen";
 import { PostsScreen } from "./Screens/PostsScreen";
+import { Text } from "react-native";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -18,8 +19,8 @@ export default function App() {
   return (
     <SafeAreaProvider>
       {/* <RegistrationScreen /> */}
-      <LoginScreen />
-      {/* <PostsScreen /> */}
+      {/* <LoginScreen /> */}
+      <PostsScreen />
     </SafeAreaProvider>
   );
 }
