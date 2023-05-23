@@ -2,9 +2,9 @@ import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 
 export const BottomTabBar = ({ state, descriptors, navigation }) => {
-  console.log("state :>> ", state);
-  console.log("descriptors :>> ", descriptors);
-  console.log("navigation :>> ", navigation);
+  // console.log("state :>> ", state);
+  // console.log("descriptors :>> ", descriptors);
+  // console.log("navigation :>> ", navigation);
 
   return (
     <>
@@ -13,7 +13,9 @@ export const BottomTabBar = ({ state, descriptors, navigation }) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
 
-          console.log("route: ", route);
+          {
+            /* console.log("route: ", route); */
+          }
 
           const onPress = () => {
             const event = navigation.emit({
@@ -91,17 +93,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
 
     // borderWidth: 1,
-  },
-
-  addButton: {
-    width: 70,
-    height: 40,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-
-    backgroundColor: "#FF6C00",
-    borderRadius: 50,
   },
 
   icon: { color: "#212121AA" },

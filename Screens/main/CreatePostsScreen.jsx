@@ -55,84 +55,94 @@ export const CreatePostsScreen = () => {
           paddingBottom: insets.bottom,
         }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "heigh"}
-        >
-          <View style={styles.form}>
-            <View style={styles.uploadImageContainer}>
-              <View style={styles.imageContainer}>
-                {photo && <Image />}
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  onPress={null}
-                  style={[
-                    styles.cameraIconContainer,
-                    photo && { backgroundColor: "#FFFFFF55" },
-                  ]}
-                >
-                  <MaterialIcons
-                    name="camera-alt"
-                    size={24}
-                    color={photo ? "#FFFFFF" : "#BDBDBD"}
-                  />
-                </TouchableOpacity>
+        <View style={styles.pageWrapper}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "heigh"}
+          >
+            <View style={styles.form}>
+              <View style={styles.uploadImageContainer}>
+                <View style={styles.imageContainer}>
+                  {photo && <Image />}
+                  <TouchableOpacity
+                    activeOpacity={0.5}
+                    onPress={null}
+                    style={[
+                      styles.cameraIconContainer,
+                      photo && { backgroundColor: "#FFFFFF55" },
+                    ]}
+                  >
+                    <MaterialIcons
+                      name="camera-alt"
+                      size={24}
+                      color={photo ? "#FFFFFF" : "#BDBDBD"}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <Text style={{ ...styles.photoText }}>
+                  {photo ? "Редактировать фото" : "Загрузите фото"}
+                </Text>
               </View>
-              <Text style={{ ...styles.photoText }}>
-                {photo ? "Редактировать фото" : "Загрузите фото"}
-              </Text>
-            </View>
-            <TextInput
-              placeholder="Название..."
-              placeholderTextColor="#BDBDBD"
-              style={[
-                { ...styles.textInputs },
-                isDescriptionFocused && styles.inputIsFocused,
-              ]}
-              onFocus={onFocusDescriptionHandler}
-              onBlur={() => setIsDescriptionFocused(false)}
-              onChangeText={(value) =>
-                setFormState((prevState) => ({
-                  ...prevState,
-                  description: value,
-                }))
-              }
-              value={formState.description}
-            />
-
-            <View style={styles.placeInputContainer}>
-              <SimpleLineIcons
-                style={styles.placeIcon}
-                name="location-pin"
-                size={24}
-                color="#BDBDBD"
-              />
-
               <TextInput
-                placeholder="Местность..."
+                placeholder="Название..."
                 placeholderTextColor="#BDBDBD"
-                style={{ ...styles.placeInput }}
-                onFocus={onFocusPlaceHandler}
-                onBlur={() => setIsPlaceFocused(false)}
+                style={[
+                  { ...styles.textInputs },
+                  isDescriptionFocused && styles.inputIsFocused,
+                ]}
+                onFocus={onFocusDescriptionHandler}
+                onBlur={() => setIsDescriptionFocused(false)}
                 onChangeText={(value) =>
                   setFormState((prevState) => ({
                     ...prevState,
-                    place: value,
+                    description: value,
                   }))
                 }
-                value={formState.place}
+                value={formState.description}
               />
-            </View>
 
-            <CustomButton
-              bgColor={photo ? "#FF6C00" : "#F6F6F6"}
-              textColor={photo ? "#FFFFFF" : "#BDBDBD"}
-              activeOpacity={photo ? 0.7 : 1}
-              onPress={null}
-            >
-              Опубликовать
-            </CustomButton>
-          </View>
-        </KeyboardAvoidingView>
+              <View style={styles.placeInputContainer}>
+                <SimpleLineIcons
+                  style={styles.placeIcon}
+                  name="location-pin"
+                  size={24}
+                  color="#BDBDBD"
+                />
+
+                <TextInput
+                  placeholder="Местность..."
+                  placeholderTextColor="#BDBDBD"
+                  style={{ ...styles.placeInput }}
+                  onFocus={onFocusPlaceHandler}
+                  onBlur={() => setIsPlaceFocused(false)}
+                  onChangeText={(value) =>
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      place: value,
+                    }))
+                  }
+                  value={formState.place}
+                />
+              </View>
+
+              <CustomButton
+                bgColor={photo ? "#FF6C00" : "#F6F6F6"}
+                textColor={photo ? "#FFFFFF" : "#BDBDBD"}
+                activeOpacity={photo ? 0.7 : 1}
+                onPress={null}
+              >
+                Опубликовать
+              </CustomButton>
+            </View>
+          </KeyboardAvoidingView>
+
+          <TouchableOpacity
+            onPress={null}
+            activeOpacity={photo ? 0.7 : 1}
+            style={styles.deleteButton}
+          >
+            <Feather name="trash-2" size={24} color="#BDBDBD" />
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -145,6 +155,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
 
     backgroundColor: "#FFFFFF",
+  },
+
+  pageWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+
+    // borderWidth: 1,
   },
 
   uploadImageContainer: {
@@ -230,5 +248,20 @@ const styles = StyleSheet.create({
     lineHeight: 19,
 
     // borderWidth: 1,
+  },
+
+  deleteButton: {
+    marginTop: "auto",
+
+    width: 70,
+    height: 40,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+
+    backgroundColor: "#F6F6F6",
+    borderRadius: 50,
+
+    alignSelf: "center",
   },
 });

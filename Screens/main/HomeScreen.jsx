@@ -15,7 +15,11 @@ export const HomeScreen = ({ navigation }) => {
   return (
     <TabsNav.Navigator
       tabBar={(props) => {
-        return <BottomTabBar {...props} />;
+        const bottomBarIsShown =
+          props.navigation.getState().index === 0 ||
+          props.navigation.getState().index === 2;
+
+        return bottomBarIsShown && <BottomTabBar {...props} />;
       }}
       initialRouteName="PostsScreen"
       options={{ headerBackVisible: true }}
