@@ -1,136 +1,81 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { PostsScreen } from "./PostsScreen";
-import { CommentsScreen } from "./CommentsScreen";
 import { CreatePostsScreen } from "./CreatePostsScreen";
 import { ProfileScreen } from "./ProfileScreen";
-import { MapScreen } from "./MapScreen";
-import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
+
+import { BottomTabBar } from "../../src/BottomTabBar/BottomTabBar";
+import { TouchableOpacity } from "react-native";
 
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomTabBar } from "../../src/BottomTabBar/BottomTabBar";
 
 export const HomeScreen = ({ navigation }) => {
   const TabsNav = createBottomTabNavigator();
-  // const insets = useSafeAreaInsets();
 
   return (
-    <>
-      <TabsNav.Navigator
-        tabBar={(props) => {
-          return <BottomTabBar {...props} />;
+    <TabsNav.Navigator
+      tabBar={(props) => {
+        return <BottomTabBar {...props} />;
+      }}
+      initialRouteName="PostsScreen"
+      options={{ headerBackVisible: true }}
+    >
+      <TabsNav.Screen
+        options={{
+          tabBarShowLabel: false,
+          headerShown: true,
+          title: "Публикации",
+          headerTitleAlign: "center",
+          headerTitleStyle: { fontSize: 17, fontWeight: 500 },
+          headerBackVisible: true,
+          headerRight: () => (
+            <TouchableOpacity
+              style={{ marginRight: 16 }}
+              activeOpacity={0.5}
+              onPress={() => {
+                navigation.navigate("Login");
+              }}
+            >
+              <Feather name="log-out" size={24} color="#BDBDBD" />
+            </TouchableOpacity>
+          ),
         }}
-        initialRouteName="PostsScreen"
-        screenOptions={({ route }) => ({
-          tabBarButton: (props) => {
-            console.log(props);
-            const isSellected = props.accessibilityState.selected;
+        name="PostsScreen"
+        component={PostsScreen}
+      />
 
-            // console.log("isSellected>>>>>>>>> ", isSellected);
+      <TabsNav.Screen
+        options={{
+          tabBarShowLabel: false,
+          headerShown: true,
+          headerBackVisible: true,
+          title: "Создать публикацию",
+          headerTitleAlign: "center",
+          headerTitleStyle: { fontSize: 17, fontWeight: 500 },
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ marginLeft: 16 }}
+              activeOpacity={0.5}
+              onPress={() => {
+                navigation.navigate("PostsScreen");
+              }}
+            >
+              <Ionicons name="arrow-back-outline" size={24} color="#BDBDBD" />
+            </TouchableOpacity>
+          ),
+        }}
+        name="CreatePostsScreen"
+        component={CreatePostsScreen}
+      />
 
-            return (
-              <TouchableOpacity
-                {...props}
-                activeOpacity={0.5}
-                style={[
-                  styles.tabButton,
-                  isSellected && styles.tabActiveButton,
-                ]}
-              />
-            );
-          },
-          tabBarIcon: ({ focused, color, size }) => {
-            switch (route.name) {
-              case "PostsScreen":
-                return (
-                  <AntDesign
-                    name="appstore-o"
-                    size={24}
-                    color={focused ? "#FFFFFF" : color}
-                  />
-                );
-
-              case "CreatePostsScreen":
-                return (
-                  <Ionicons
-                    name="add-outline"
-                    size={24}
-                    color={focused ? "#FFFFFF" : color}
-                  />
-                );
-
-              case "ProfileScreen":
-                return (
-                  <Feather
-                    name="user"
-                    size={24}
-                    color={focused ? "#FFFFFF" : color}
-                  />
-                );
-
-              default:
-                break;
-            }
-          },
-
-          // tabBarStyle: styles.buttonsContainer,
-        })}
-      >
-        <TabsNav.Screen
-          options={{ tabBarShowLabel: false, headerShown: false }}
-          name="PostsScreen"
-          component={PostsScreen}
-        />
-
-        <TabsNav.Screen
-          options={{ tabBarShowLabel: false, headerShown: false }}
-          name="CreatePostsScreen"
-          component={CreatePostsScreen}
-        />
-
-        <TabsNav.Screen
-          options={{ tabBarShowLabel: false, headerShown: false }}
-          name="ProfileScreen"
-          component={ProfileScreen}
-        />
-      </TabsNav.Navigator>
-    </>
+      <TabsNav.Screen
+        options={{
+          tabBarShowLabel: false,
+          headerShown: false,
+        }}
+        name="ProfileScreen"
+        component={ProfileScreen}
+      />
+    </TabsNav.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  buttonsContainer: {
-    // alignSelf: "center",
-
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-
-    // paddingHorizontal: 16,
-    // paddingTop: 9,
-
-    // borderTopWidth: 1,
-    // borderTopColor: "#BDBDBD",
-
-    borderWidth: 5,
-  },
-
-  icon: { inactive: { color: "#212121AA" }, active: { color: "#FFFFFF" } },
-
-  tabButton: {
-    width: 70,
-    height: 40,
-
-    backgroundColor: "transparent",
-    borderRadius: 50,
-    borderWidth: 1,
-    // marginRight: 16,
-  },
-
-  tabActiveButton: {
-    backgroundColor: "#FF6C00",
-  },
-});

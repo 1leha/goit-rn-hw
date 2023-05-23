@@ -3,7 +3,6 @@ import {
   Text,
   View,
   ImageBackground,
-  TouchableOpacity,
   SafeAreaView,
   FlatList,
 } from "react-native";
@@ -12,7 +11,7 @@ import {
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 
 const users = [
   { id: 1, userName: "Alex", email: "alex.PO@mail.com", avatar: null },
@@ -22,78 +21,43 @@ const DefaultUserIcon = ({ ...props }) => (
   <Feather name="user" size={24} {...props} />
 );
 
-export const PostsScreen = function ({ navigation }) {
+export const PostsScreen = function () {
   const insets = useSafeAreaInsets();
 
   return (
     <SafeAreaView
       style={{
         ...styles.container,
-        paddingTop: insets.top,
+        // paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
     >
-      <View style={styles.screenWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity activeOpacity={0.5}>
-            <Ionicons name="arrow-back-outline" size={24} color="transparent" />
-          </TouchableOpacity>
+      {users && (
+        <FlatList
+          data={users}
+          renderItem={({ item }) => (
+            <View style={styles.userCard}>
+              <View
+                style={[
+                  styles.avatarThumb,
+                  item.avatar ?? styles.noAvatarThumb,
+                ]}
+              >
+                <ImageBackground source={null} style={styles.avtar}>
+                  {!item.avatar && <DefaultUserIcon color="#BDBDBD" />}
+                </ImageBackground>
+              </View>
 
-          <Text style={styles.headerTitle}>Публикации</Text>
-
-          <TouchableOpacity
-            activeOpacity={0.5}
-            onPress={() => {
-              navigation.navigate("Login");
-            }}
-          >
-            <Feather name="log-out" size={24} color="#BDBDBD" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.main}>
-          {users && (
-            <FlatList
-              data={users}
-              renderItem={({ item }) => (
-                <View style={styles.userPostCard}>
-                  <View
-                    style={[
-                      styles.avatarThumb,
-                      item.avatar ?? styles.noAvatarThumb,
-                    ]}
-                  >
-                    <ImageBackground source={null} style={styles.avtar}>
-                      {!item.avatar && <DefaultUserIcon color="#BDBDBD" />}
-                    </ImageBackground>
-                  </View>
-
-                  <View style={styles.cardTextWrapper}>
-                    <Text style={{ ...styles.userName }}>{item.userName}</Text>
-                    <Text style={{ ...styles.email }}>{item.email}</Text>
-                  </View>
-                </View>
-              )}
-              keyExtractor={(item) => item.id}
-              ItemSeparatorComponent={<View style={styles.separator}></View>}
-            />
+              <View style={styles.cardTextWrapper}>
+                <Text style={{ ...styles.userName }}>{item.userName}</Text>
+                <Text style={{ ...styles.email }}>{item.email}</Text>
+              </View>
+            </View>
           )}
-        </View>
-        {/* 
-        <View style={styles.footer}>
-          <TouchableOpacity activeOpacity={0.5}>
-            <AntDesign name="appstore-o" size={24} color="#212121AA" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.addButton} activeOpacity={0.5}>
-            <Ionicons name="add-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-
-          <TouchableOpacity activeOpacity={0.5}>
-            <Feather name="user" size={24} color="#212121AA" />
-          </TouchableOpacity>
-        </View> */}
-      </View>
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={<View style={styles.separator}></View>}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -101,45 +65,17 @@ export const PostsScreen = function ({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  screenWrapper: {
-    flex: 1,
-
-    display: "flex",
-    flexDirection: "column",
-
-    justifyContent: "space-between",
-    paddingBottom: 9,
-  },
-
-  header: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    paddingTop: 32,
     paddingHorizontal: 16,
-    paddingVertical: 12,
 
-    borderBottomWidth: 1,
-    borderBottomColor: "#BDBDBD",
-  },
-
-  headerTitle: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 17,
-    lineHeight: 22,
-    letterSpacing: -0.4,
-    textAlign: "center",
+    backgroundColor: "#FFFFFF",
   },
 
   main: {
     flex: 1,
-
-    paddingHorizontal: 16,
-    paddingVertical: 32,
   },
 
-  userPostCard: {
+  userCard: {
     // borderWidth: 1,
     display: "flex",
     flexDirection: "row",

@@ -1,9 +1,17 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
-export const CustomButton = ({ children, ...props }) => {
+export const CustomButton = ({
+  children,
+  bgColor = "#FF6C00",
+  textColor = "#FFFFFF",
+  ...props
+}) => {
   return (
-    <TouchableOpacity {...props} style={[styles.btn]}>
-      <Text style={styles.btnText}>{children}</Text>
+    <TouchableOpacity
+      {...props}
+      style={[styles.btn, { backgroundColor: bgColor }]}
+    >
+      <Text style={[styles.btnText, { color: textColor }]}>{children}</Text>
     </TouchableOpacity>
   );
 };
@@ -15,8 +23,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     paddingRight: 16,
 
-    color: "#ffffff",
-    backgroundColor: "#FF6C00",
+    // backgroundColor: "#FF6C00",
 
     borderRadius: 100,
   },
@@ -27,6 +34,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
 
     textAlign: "center",
-    color: "#ffffff",
+    // color: "#ffffff",
   },
 });
