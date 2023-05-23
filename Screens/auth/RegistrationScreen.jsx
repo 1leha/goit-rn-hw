@@ -14,8 +14,8 @@ import {
 
 import { useState } from "react";
 
-import { CustomButton } from "../src/CustomButton";
-import { QuestionButton } from "../src/QuestionButton";
+import { CustomButton } from "../../src/CustomButton";
+import { QuestionButton } from "../../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -27,7 +27,7 @@ const initialUserState = {
   avatar: null,
 };
 
-export const RegistrationScreen = function () {
+export const RegistrationScreen = function ({ navigation }) {
   const [avatar, setAvatar] = useState(null);
   const [newUser, setNewUser] = useState(initialUserState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -66,6 +66,7 @@ export const RegistrationScreen = function () {
     setNewUser(initialUserState);
     setIsShowPassword(false);
     closeKeyBoard();
+    navigation.navigate("Home");
   };
 
   const insets = useSafeAreaInsets();
@@ -80,7 +81,7 @@ export const RegistrationScreen = function () {
         }}
       >
         <ImageBackground
-          source={require("../assets/img/PhotoBG.jpg")}
+          source={require("../../assets/img/PhotoBG.jpg")}
           style={styles.appBg}
         >
           <KeyboardAvoidingView
@@ -192,7 +193,7 @@ export const RegistrationScreen = function () {
 
                   <QuestionButton
                     activeOpacity={0.7}
-                    onPress={() => console.log("Уже есть аккаунт? Войти")}
+                    onPress={() => navigation.navigate("Login")}
                   >
                     Уже есть аккаунт? Войти
                   </QuestionButton>
@@ -210,6 +211,7 @@ export const RegistrationScreen = function () {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#FFFFFF",
   },
 
   appBg: {

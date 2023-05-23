@@ -16,38 +16,13 @@ import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 
 const users = [
   { id: 1, userName: "Alex", email: "alex.PO@mail.com", avatar: null },
-  {
-    id: 2,
-    userName: "Veronika Brisse",
-    email: "veronika.brisse@mail.com",
-    avatar: null,
-  },
-  { id: 3, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 4, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 5, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 6, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 7, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 8, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 9, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 10, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 11, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 12, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 13, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 14, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 15, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 16, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 17, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 18, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 19, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 20, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
-  { id: 21, userName: "Jim Kelsky", email: "Jim2022@mail.com", avatar: null },
 ];
 
 const DefaultUserIcon = ({ ...props }) => (
   <Feather name="user" size={24} {...props} />
 );
 
-export const PostsScreen = function () {
+export const PostsScreen = function ({ navigation }) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -66,7 +41,12 @@ export const PostsScreen = function () {
 
           <Text style={styles.headerTitle}>Публикации</Text>
 
-          <TouchableOpacity activeOpacity={0.5}>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => {
+              navigation.navigate("Login");
+            }}
+          >
             <Feather name="log-out" size={24} color="#BDBDBD" />
           </TouchableOpacity>
         </View>
@@ -91,8 +71,6 @@ export const PostsScreen = function () {
                   <View style={styles.cardTextWrapper}>
                     <Text style={{ ...styles.userName }}>{item.userName}</Text>
                     <Text style={{ ...styles.email }}>{item.email}</Text>
-                    {/* <Text style={styles.userName}>{item.userName}</Text> */}
-                    {/* <Text style={styles.email}>{item.email}</Text> */}
                   </View>
                 </View>
               )}
@@ -101,7 +79,7 @@ export const PostsScreen = function () {
             />
           )}
         </View>
-
+        {/* 
         <View style={styles.footer}>
           <TouchableOpacity activeOpacity={0.5}>
             <AntDesign name="appstore-o" size={24} color="#212121AA" />
@@ -114,7 +92,7 @@ export const PostsScreen = function () {
           <TouchableOpacity activeOpacity={0.5}>
             <Feather name="user" size={24} color="#212121AA" />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );
@@ -123,6 +101,7 @@ export const PostsScreen = function () {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#FFFFFF",
   },
   screenWrapper: {
     flex: 1,
@@ -131,6 +110,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
 
     justifyContent: "space-between",
+    paddingBottom: 9,
   },
 
   header: {

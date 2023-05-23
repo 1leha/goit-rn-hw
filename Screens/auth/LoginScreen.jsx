@@ -14,8 +14,8 @@ import {
 
 import { useState } from "react";
 
-import { CustomButton } from "../src/CustomButton";
-import { QuestionButton } from "../src/QuestionButton";
+import { CustomButton } from "../../src/CustomButton";
+import { QuestionButton } from "../../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -24,7 +24,7 @@ const initialUserState = {
   password: "",
 };
 
-export const LoginScreen = function () {
+export const LoginScreen = function ({ navigation }) {
   const [user, setUser] = useState(initialUserState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
@@ -57,6 +57,7 @@ export const LoginScreen = function () {
     setIsShowPassword(false);
 
     closeKeyBoard();
+    navigation.navigate("Home");
   };
 
   const insets = useSafeAreaInsets();
@@ -71,7 +72,7 @@ export const LoginScreen = function () {
         }}
       >
         <ImageBackground
-          source={require("../assets/img/PhotoBG.jpg")}
+          source={require("../../assets/img/PhotoBG.jpg")}
           style={styles.appBg}
         >
           <KeyboardAvoidingView
@@ -154,9 +155,7 @@ export const LoginScreen = function () {
 
                   <QuestionButton
                     activeOpacity={0.7}
-                    onPress={() =>
-                      console.log("Нет аккаунта? Зарегистрироваться")
-                    }
+                    onPress={() => navigation.navigate("Registration")}
                   >
                     Нет аккаунта? Зарегистрироваться
                   </QuestionButton>
