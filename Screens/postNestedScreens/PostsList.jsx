@@ -64,7 +64,6 @@ export const PostsList = function () {
 
   // Emulation DB
   useEffect(() => {
-    // console.log("params :>> ", params);
     if (!params) {
       return;
     }
@@ -75,7 +74,6 @@ export const PostsList = function () {
     <SafeAreaView
       style={{
         ...styles.container,
-        // paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
     >
