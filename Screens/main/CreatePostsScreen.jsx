@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
+  Image,
 } from "react-native";
 
 import {
@@ -16,14 +17,33 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
+import { Camera } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import * as Location from "expo-location";
+
 import { Feather, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { CustomButton } from "../../src/CustomButton";
+import {
+  checkCameraPermissions,
+  checkLocationPermissions,
+} from "../../src/helpers";
+import { useNavigation } from "@react-navigation/native";
 
 const initFormState = { description: "", place: "" };
 
 export const CreatePostsScreen = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const [cameraRef, setCameraRef] = useState(null);
+  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+
   const [photo, setPhoto] = useState(null);
+
+  const [hasLocationPermission, setHasLocationPermission] = useState(null);
+  const [myLocation, setMyLocation] = useState(null);
+  const [myGeo, setMyGeo] = useState(null);
 
   const [formState, setFormState] = useState(initFormState);
 
@@ -31,6 +51,46 @@ export const CreatePostsScreen = () => {
   const [isPlaceFocused, setIsPlaceFocused] = useState(false);
 
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
+  // Camera permission
+  useEffect(() => {
+    console.log("useEffect");
+    (async () => {
+      let { status: cameraStatus } =
+        await Camera.requestCameraPermissionsAsync();
+      if (cameraStatus !== "granted") {
+        console.log("Permission to camera access was denied!");
+      }
+      await MediaLibrary.requestPermissionsAsync();
+      setHasCameraPermission(cameraStatus === "granted");
+
+      // setHasCameraPermission(await checkCameraPermissions());
+      // await setHasLocationPermission(await checkLocationPermissions());
+
+      let { status: locationStatus } =
+        await Location.requestForegroundPermissionsAsync();
+
+      if (locationStatus !== "granted") {
+        console.log("Permission to access location was denied!");
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      console.log("location :>> ", location);
+
+      let geo = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      console.log("geo :>> ", geo);
+
+      setMyLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      setMyGeo({ city: geo[0].city, country: geo[0].country });
+    })();
+  }, []);
 
   const closeKeyBoard = () => {
     setIsShowKeyboard(false);
@@ -45,6 +105,39 @@ export const CreatePostsScreen = () => {
   const onFocusPlaceHandler = () => {
     setIsPlaceFocused(true);
     setIsShowKeyboard(true);
+  };
+
+  const takePhoto = async () => {
+    if (cameraRef) {
+      const { uri } = await cameraRef.takePictureAsync();
+      setPhoto(uri);
+
+      setFormState((prevState) => ({
+        ...prevState,
+        place: `${myGeo.city ?? "Your city"}, ${
+          myGeo.country ?? "Your country"
+        }`,
+      }));
+    }
+  };
+
+  const publicPost = () => {
+    console.log("formState :>> ", formState);
+    const params = {
+      ...formState,
+      photo,
+      myLocation,
+    };
+
+    navigation.navigate("PostsScreen", params);
+
+    setPhoto(null);
+    setFormState(initFormState);
+  };
+
+  const clearPost = () => {
+    setPhoto(null);
+    setFormState(initFormState);
   };
 
   return (
@@ -62,13 +155,23 @@ export const CreatePostsScreen = () => {
             <View style={styles.form}>
               <View style={styles.uploadImageContainer}>
                 <View style={styles.imageContainer}>
-                  {photo && <Image />}
+                  {photo ? (
+                    <Image style={styles.image} source={{ uri: photo }} />
+                  ) : (
+                    <Camera
+                      style={styles.camera}
+                      ref={setCameraRef}
+                      type={cameraType}
+                      ratio="1:1"
+                    />
+                  )}
+
                   <TouchableOpacity
-                    activeOpacity={0.5}
-                    onPress={null}
+                    activeOpacity={photo || cameraRef ? 0.7 : 1}
+                    onPress={takePhoto}
                     style={[
                       styles.cameraIconContainer,
-                      photo && { backgroundColor: "#FFFFFF55" },
+                      (photo || cameraRef) && { backgroundColor: "#FFFFFF55" },
                     ]}
                   >
                     <MaterialIcons
@@ -78,6 +181,7 @@ export const CreatePostsScreen = () => {
                     />
                   </TouchableOpacity>
                 </View>
+
                 <Text style={{ ...styles.photoText }}>
                   {photo ? "Редактировать фото" : "Загрузите фото"}
                 </Text>
@@ -128,7 +232,7 @@ export const CreatePostsScreen = () => {
                 bgColor={photo ? "#FF6C00" : "#F6F6F6"}
                 textColor={photo ? "#FFFFFF" : "#BDBDBD"}
                 activeOpacity={photo ? 0.7 : 1}
-                onPress={null}
+                onPress={publicPost}
               >
                 Опубликовать
               </CustomButton>
@@ -136,7 +240,7 @@ export const CreatePostsScreen = () => {
           </KeyboardAvoidingView>
 
           <TouchableOpacity
-            onPress={null}
+            onPress={clearPost}
             activeOpacity={photo ? 0.7 : 1}
             style={styles.deleteButton}
           >
@@ -170,6 +274,7 @@ const styles = StyleSheet.create({
   },
 
   imageContainer: {
+    position: "relative",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -178,8 +283,33 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#F6F6F6",
 
+    overflow: "hidden",
+
     borderWidth: 1,
     borderColor: "#E8E8E8",
+  },
+
+  camera: {
+    position: "absolute",
+
+    top: 0,
+    left: 0,
+
+    height: 240,
+    width: "100%",
+
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
+  },
+
+  image: {
+    position: "absolute",
+
+    top: 0,
+    left: 0,
+
+    height: 240,
+    width: "100%",
   },
 
   cameraIconContainer: {

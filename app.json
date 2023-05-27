@@ -12,9 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
-
     "jsEngine": "hermes",
-
     "ios": {
       "jsEngine": "jsc",
       "supportsTablet": true
@@ -25,10 +23,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.test.pt.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8c6b9c32-19a5-4a98-8958-67cc516fce19"
+      }
     }
-  }
+  },
+  "android.config.googleMaps.apiKey": "AIzaSyAUFyTkC_oyduYIQENWPmQg8rh6jcovRwM"
 }

@@ -7,6 +7,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { RegistrationScreen } from "./Screens/auth/RegistrationScreen";
 import { LoginScreen } from "./Screens/auth/LoginScreen";
 import { HomeScreen } from "./Screens/main/HomeScreen";
+import { MapScreen } from "./Screens/postNestedScreens/MapScreen";
+import { CreatePostsScreen, PostsScreen } from "./Screens/main";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -42,6 +44,10 @@ export default function App() {
           />
         </AuthNav.Navigator>
       </NavigationContainer>
+
+      {/* <PostsScreen /> */}
+
+      {/* <CreatePostsScreen /> */}
     </SafeAreaProvider>
   );
 }

@@ -5,24 +5,39 @@ import {
   ImageBackground,
   SafeAreaView,
   FlatList,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 
-// import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Feather } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { PostsList } from "../postNestedScreens/PostsList";
+import { MapScreen } from "../postNestedScreens/MapScreen";
+import { CommentsScreen } from "../postNestedScreens/CommentsScreen";
 
-const users = [
-  { id: 1, userName: "Alex", email: "alex.PO@mail.com", avatar: null },
-];
-
-const DefaultUserIcon = ({ ...props }) => (
-  <Feather name="user" size={24} {...props} />
-);
+import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 
 export const PostsScreen = function () {
+  // const [posts, setPosts] = useState([]);
+
+  const PostsNav = createBottomTabNavigator();
+  const navigation = useNavigation();
+
   const insets = useSafeAreaInsets();
+
+  // const { params } = useRoute();
+
+  // useEffect(() => {
+  //   console.log("params :>> ", params);
+  //   if (!params) {
+  //     return;
+  //   }
+  //   setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
+  // }, [params]);
 
   return (
     <SafeAreaView
@@ -32,32 +47,81 @@ export const PostsScreen = function () {
         paddingBottom: insets.bottom,
       }}
     >
-      {users && (
-        <FlatList
-          data={users}
-          renderItem={({ item }) => (
-            <View style={styles.userCard}>
-              <View
-                style={[
-                  styles.avatarThumb,
-                  item.avatar ?? styles.noAvatarThumb,
-                ]}
+      <PostsNav.Navigator initialRouteName="PostsList">
+        <PostsNav.Screen
+          name="PostsList"
+          component={PostsList}
+          options={{
+            headerShown: true,
+            tabBarStyle: { display: "none" },
+            title: "Публикации",
+            headerTitleAlign: "center",
+            headerTitleStyle: { fontSize: 17, fontWeight: 500 },
+            headerBackVisible: true,
+            headerRight: () => (
+              <TouchableOpacity
+                style={{ marginRight: 16 }}
+                activeOpacity={0.7}
+                onPress={() => {
+                  navigation.navigate("Login");
+                }}
               >
-                <ImageBackground source={null} style={styles.avtar}>
-                  {!item.avatar && <DefaultUserIcon color="#BDBDBD" />}
-                </ImageBackground>
-              </View>
-
-              <View style={styles.cardTextWrapper}>
-                <Text style={{ ...styles.userName }}>{item.userName}</Text>
-                <Text style={{ ...styles.email }}>{item.email}</Text>
-              </View>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={<View style={styles.separator}></View>}
+                <Feather name="log-out" size={24} color="#BDBDBD" />
+              </TouchableOpacity>
+            ),
+          }}
         />
-      )}
+
+        <PostsNav.Screen
+          name="MapScreen"
+          component={MapScreen}
+          options={{
+            headerShown: true,
+            tabBarStyle: { display: "none" },
+            title: "Карта",
+            headerTitleAlign: "center",
+            headerTitleStyle: { fontSize: 17, fontWeight: 500 },
+            headerBackVisible: true,
+            headerShown: true,
+            tabBarStyle: { display: "none" },
+            headerLeft: () => (
+              <TouchableOpacity
+                style={{ marginLeft: 16 }}
+                activeOpacity={0.5}
+                onPress={() => {
+                  navigation.navigate("PostsList");
+                }}
+              >
+                <Ionicons name="arrow-back-outline" size={24} color="#BDBDBD" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+
+        <PostsNav.Screen
+          name="CommentsScreen"
+          component={CommentsScreen}
+          options={{
+            title: "Комментарии",
+            headerTitleAlign: "center",
+            headerTitleStyle: { fontSize: 17, fontWeight: 500 },
+            headerBackVisible: true,
+            headerShown: true,
+            tabBarStyle: { display: "none" },
+            headerLeft: () => (
+              <TouchableOpacity
+                style={{ marginLeft: 16 }}
+                activeOpacity={0.5}
+                onPress={() => {
+                  navigation.navigate("PostsList");
+                }}
+              >
+                <Ionicons name="arrow-back-outline" size={24} color="#BDBDBD" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      </PostsNav.Navigator>
     </SafeAreaView>
   );
 };
@@ -65,8 +129,6 @@ export const PostsScreen = function () {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 32,
-    paddingHorizontal: 16,
 
     backgroundColor: "#FFFFFF",
   },
@@ -81,6 +143,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
+
+    marginBottom: 32,
   },
 
   avatarThumb: {
@@ -132,30 +196,73 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
   },
 
-  footer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 39,
-
-    paddingHorizontal: 16,
-    paddingTop: 9,
-
-    borderTopWidth: 1,
-    borderTopColor: "#BDBDBD",
-
+  postCard: {
     // borderWidth: 1,
+    display: "flex",
+    gap: 8,
   },
 
-  addButton: {
-    width: 70,
-    height: 40,
+  postCardThumb: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
 
-    backgroundColor: "#FF6C00",
-    borderRadius: 50,
+    height: 240,
+
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+
+  image: {
+    flex: 1,
+    height: 240,
+    width: "100%",
+  },
+
+  description: {
+    fontFamily: "Roboto-Medium",
+    fontSize: 16,
+    lineHeight: 19,
+
+    color: "#212121",
+  },
+
+  cardFooterWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+
+    marginTop: 0,
+  },
+
+  postComments: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  commentsQuantity: {
+    fontFamily: "Roboto-Regular",
+    color: "#BDBDBD",
+    fontSize: 16,
+    lineHeight: 19,
+    marginLeft: 9,
+  },
+
+  postLocation: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  locationText: {
+    marginLeft: 8,
+
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
+    textDecorationLine: "underline",
+
+    color: "#212121",
   },
 });
