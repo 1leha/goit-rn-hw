@@ -7,8 +7,8 @@ import { ProfileScreen } from "./ProfileScreen";
 import { BottomTabBar } from "../../src/BottomTabBar/BottomTabBar";
 import { TouchableOpacity } from "react-native";
 
-import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export const HomeScreen = () => {
   const TabsNav = createBottomTabNavigator();

@@ -26,49 +26,50 @@ const user = {
   avatar: null,
 };
 
-const posts = [
-  {
-    id: 1,
-    description: "Предмет",
-    myLocation: {
-      latitude: 1.125012,
-      longitude: 2.5217617,
-    },
-    photo:
-      "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%25401leha%252Fgoit-rn-hw/Camera/80fcef52-616c-45b0-978a-237862a993ab.jpg",
-    place: "Якесь місто, Украина",
-  },
-  {
-    id: 2,
-    description: "Предмет",
-    myLocation: {
-      latitude: 30.125012,
-      longitude: 40.5217617,
-    },
-    photo:
-      "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%25401leha%252Fgoit-rn-hw/Camera/80fcef52-616c-45b0-978a-237862a993ab.jpg",
-    place: "Місто, Украина",
-  },
-];
+// const posts = [
+//   {
+//     id: 1,
+//     description: "Предмет",
+//     myLocation: {
+//       latitude: 1.125012,
+//       longitude: 2.5217617,
+//     },
+//     photo:
+//       "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%25401leha%252Fgoit-rn-hw/Camera/80fcef52-616c-45b0-978a-237862a993ab.jpg",
+//     place: "Якесь місто, Украина",
+//   },
+//   {
+//     id: 2,
+//     description: "Предмет",
+//     myLocation: {
+//       latitude: 30.125012,
+//       longitude: 40.5217617,
+//     },
+//     photo:
+//       "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%25401leha%252Fgoit-rn-hw/Camera/80fcef52-616c-45b0-978a-237862a993ab.jpg",
+//     place: "Місто, Украина",
+//   },
+// ];
 
 const DefaultUserIcon = ({ ...props }) => (
   <Feather name="user" size={24} {...props} />
 );
 
 export const PostsList = function () {
-  // const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
   const navigation = useNavigation();
+  const { params } = useRoute();
+
   const insets = useSafeAreaInsets();
 
-  // const { params } = useRoute();
-
-  // useEffect(() => {
-  //   console.log("params :>> ", params);
-  //   if (!params) {
-  //     return;
-  //   }
-  //   setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
-  // }, [params]);
+  // Emulation DB
+  useEffect(() => {
+    // console.log("params :>> ", params);
+    if (!params) {
+      return;
+    }
+    setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
+  }, [params]);
 
   return (
     <SafeAreaView
@@ -79,7 +80,6 @@ export const PostsList = function () {
       }}
     >
       {/* user */}
-      {/* <View style={styles.container}> */}
       <View style={styles.userCard}>
         <View style={[styles.avatarThumb, user.avatar ?? styles.noAvatarThumb]}>
           <ImageBackground source={null} style={styles.avtar}>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingHorizontal: 16,
     backgroundColor: "#FFFFFF",
-    borderWidth: 1,
+    // borderWidth: 1,
   },
 
   main: {

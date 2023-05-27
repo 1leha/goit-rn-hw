@@ -18,12 +18,10 @@ export const MapScreen = () => {
         console.log("Permission to access location was denied!");
       }
 
-      // let location = await Location.getCurrentPositionAsync({});
       const coords = {
         latitude: params.coords.latitude,
         longitude: params.coords.longitude,
       };
-      console.log("coords :>> ", coords);
       setMyLocation(coords);
     })();
   }, []);
@@ -43,7 +41,6 @@ export const MapScreen = () => {
           minZoomLevel={5}
           maxZoomLevel={15}
           onMapReady={() => console.log("Map is ready")}
-          // onRegionChange={() => console.log("Region change")}
         >
           {myLocation && (
             <Marker
@@ -68,6 +65,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   mapStyle: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,

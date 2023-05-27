@@ -23,10 +23,7 @@ import * as Location from "expo-location";
 
 import { Feather, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { CustomButton } from "../../src/CustomButton";
-import {
-  checkCameraPermissions,
-  checkLocationPermissions,
-} from "../../src/helpers";
+
 import { useNavigation } from "@react-navigation/native";
 
 const initFormState = { description: "", place: "" };
@@ -41,7 +38,6 @@ export const CreatePostsScreen = () => {
 
   const [photo, setPhoto] = useState(null);
 
-  const [hasLocationPermission, setHasLocationPermission] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   const [myGeo, setMyGeo] = useState(null);
 
@@ -54,7 +50,7 @@ export const CreatePostsScreen = () => {
 
   // Camera permission
   useEffect(() => {
-    console.log("useEffect");
+    // console.log("useEffect");
     (async () => {
       let { status: cameraStatus } =
         await Camera.requestCameraPermissionsAsync();
@@ -63,9 +59,6 @@ export const CreatePostsScreen = () => {
       }
       await MediaLibrary.requestPermissionsAsync();
       setHasCameraPermission(cameraStatus === "granted");
-
-      // setHasCameraPermission(await checkCameraPermissions());
-      // await setHasLocationPermission(await checkLocationPermissions());
 
       let { status: locationStatus } =
         await Location.requestForegroundPermissionsAsync();
@@ -81,7 +74,7 @@ export const CreatePostsScreen = () => {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-      console.log("geo :>> ", geo);
+      // console.log("geo :>> ", geo);
 
       setMyLocation({
         latitude: location.coords.latitude,
@@ -114,22 +107,22 @@ export const CreatePostsScreen = () => {
 
       setFormState((prevState) => ({
         ...prevState,
-        place: `${myGeo.city ?? "Your city"}, ${
-          myGeo.country ?? "Your country"
+        place: `${myGeo?.city ?? "Your city"}, ${
+          myGeo?.country ?? "Your country"
         }`,
       }));
     }
   };
 
   const publicPost = () => {
-    console.log("formState :>> ", formState);
+    // console.log("formState :>> ", formState);
     const params = {
       ...formState,
       photo,
       myLocation,
     };
 
-    navigation.navigate("PostsScreen", params);
+    navigation.navigate("PostsList", params);
 
     setPhoto(null);
     setFormState(initFormState);
