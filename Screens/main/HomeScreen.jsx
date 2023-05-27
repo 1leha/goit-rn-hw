@@ -7,10 +7,13 @@ import { ProfileScreen } from "./ProfileScreen";
 import { BottomTabBar } from "../../src/BottomTabBar/BottomTabBar";
 import { TouchableOpacity } from "react-native";
 
-import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-export const HomeScreen = ({ navigation }) => {
+export const HomeScreen = () => {
   const TabsNav = createBottomTabNavigator();
+
+  const navigation = useNavigation();
 
   return (
     <TabsNav.Navigator
@@ -27,22 +30,7 @@ export const HomeScreen = ({ navigation }) => {
       <TabsNav.Screen
         options={{
           tabBarShowLabel: false,
-          headerShown: true,
-          title: "Публикации",
-          headerTitleAlign: "center",
-          headerTitleStyle: { fontSize: 17, fontWeight: 500 },
-          headerBackVisible: true,
-          headerRight: () => (
-            <TouchableOpacity
-              style={{ marginRight: 16 }}
-              activeOpacity={0.5}
-              onPress={() => {
-                navigation.navigate("Login");
-              }}
-            >
-              <Feather name="log-out" size={24} color="#BDBDBD" />
-            </TouchableOpacity>
-          ),
+          headerShown: false,
         }}
         name="PostsScreen"
         component={PostsScreen}

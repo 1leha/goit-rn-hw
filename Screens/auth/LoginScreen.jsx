@@ -135,7 +135,7 @@ export const LoginScreen = function ({ navigation }) {
 
                     <TouchableOpacity
                       style={styles.showButton}
-                      activeOpacity={0.5}
+                      activeOpacity={0.7}
                       onPress={() => setIsShowPassword(!isShowPassword)}
                     >
                       <Text style={{ ...styles.showButtonText }}>Показать</Text>
