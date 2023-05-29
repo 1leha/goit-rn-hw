@@ -11,6 +11,7 @@ import {
   TextInput,
   SafeAreaView,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 import { useState } from "react";
 
@@ -69,6 +70,24 @@ export const RegistrationScreen = function ({ navigation }) {
     navigation.navigate("Home");
   };
 
+  //setAvatar
+
+  const chooseAvatar = async () => {
+    const avatar = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.5,
+    });
+    console.log("avatar :>> ", avatar.assets);
+    if (avatar.canceled) return;
+
+    setAvatar(avatar.assets[0].uri);
+  };
+
+  const removeAvatar = () => {
+    setAvatar(null);
+  };
+
   const insets = useSafeAreaInsets();
 
   return (
@@ -94,15 +113,26 @@ export const RegistrationScreen = function ({ navigation }) {
                 height: isShowKeyboard ? 590 : 520,
               }}
             >
-              <ImageBackground source={avatar} style={styles.avtar}>
-                <TouchableOpacity style={styles.addButton} activeOpacity={0.5}>
+              {/* avatar */}
+              <View style={styles.avtar}>
+                <ImageBackground
+                  source={{ uri: avatar }}
+                  style={styles.avtarImg}
+                />
+                <TouchableOpacity
+                  style={avatar ? styles.removeButton : styles.addButton}
+                  activeOpacity={0.7}
+                  onPress={avatar ? removeAvatar : chooseAvatar}
+                >
                   <Ionicons
-                    style={styles.addButtonIcon}
+                    style={
+                      avatar ? styles.removeButtonIcon : styles.addButtonIcon
+                    }
                     name="add-outline"
                     size={25}
                   />
                 </TouchableOpacity>
-              </ImageBackground>
+              </View>
 
               <Text style={styles.formTitle}>Регистрация</Text>
               <ScrollView
@@ -244,8 +274,15 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     backgroundColor: "#F6F6F6",
-    borderRadius: 16,
     zIndex: 100,
+    borderRadius: 16,
+  },
+
+  avtarImg: {
+    overflow: "hidden",
+    borderRadius: 16,
+
+    flex: 1,
   },
 
   addButton: {
@@ -268,10 +305,34 @@ const styles = StyleSheet.create({
   },
 
   addButtonIcon: {
-    // transform: [{ translateY: -2 }],
     top: -1,
 
     color: "#FF6C00",
+  },
+
+  removeButton: {
+    position: "absolute",
+    margin: 0,
+    padding: 0,
+
+    width: 25,
+    height: 25,
+
+    right: 0,
+    bottom: 14,
+    transform: [{ translateX: 25 / 2 }, { rotateZ: "45deg" }],
+
+    backgroundColor: "#FFFFFF",
+
+    borderColor: "#E8E8E8",
+    borderWidth: 1,
+    borderRadius: 50,
+  },
+
+  removeButtonIcon: {
+    top: -1,
+
+    color: "#E8E8E8",
   },
 
   formTitle: {
