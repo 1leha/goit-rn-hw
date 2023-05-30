@@ -18,13 +18,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/core";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../src/redux/auth/authSellectors";
 
-const user = {
-  id: 1,
-  userName: "Alex",
-  email: "alex.PO@mail.com",
-  avatar: null,
-};
+// const user = {
+//   id: 1,
+//   userName: "Alex",
+//   email: "alex.PO@mail.com",
+//   avatar: null,
+// };
 
 // const posts = [
 //   {
@@ -62,6 +64,8 @@ export const PostsList = function () {
 
   const insets = useSafeAreaInsets();
 
+  const user = useSelector(selectUser);
+
   // Emulation DB
   useEffect(() => {
     if (!params) {
@@ -78,18 +82,25 @@ export const PostsList = function () {
       }}
     >
       {/* user */}
-      <View style={styles.userCard}>
-        <View style={[styles.avatarThumb, user.avatar ?? styles.noAvatarThumb]}>
-          <ImageBackground source={null} style={styles.avtar}>
-            {!user.avatar && <DefaultUserIcon color="#BDBDBD" />}
-          </ImageBackground>
-        </View>
+      {user.id && (
+        <View style={styles.userCard}>
+          <View
+            style={[styles.avatarThumb, user.avatarURL ?? styles.noAvatarThumb]}
+          >
+            <ImageBackground
+              source={{ uri: user.avatarURL }}
+              style={styles.avatar}
+            >
+              {!user.avatarURL && <DefaultUserIcon color="#BDBDBD" />}
+            </ImageBackground>
+          </View>
 
-        <View style={styles.cardTextWrapper}>
-          <Text style={{ ...styles.userName }}>{user.userName}</Text>
-          <Text style={{ ...styles.email }}>{user.email}</Text>
+          <View style={styles.cardTextWrapper}>
+            <Text style={{ ...styles.userName }}>{user.userName}</Text>
+            <Text style={{ ...styles.email }}>{user.email}</Text>
+          </View>
         </View>
-      </View>
+      )}
 
       {/* posts */}
       {posts.length > 0 && (
@@ -188,7 +199,6 @@ const styles = StyleSheet.create({
   },
 
   avatarThumb: {
-    flex: 0,
     alignItems: "center",
     justifyContent: "center",
 
@@ -199,10 +209,23 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginRight: 8,
 
-    resizeMode: "cover",
     color: "#fff",
 
     borderRadius: 16,
+    overflow: "hidden",
+  },
+
+  avatar: {
+    // borderWidth: 1,
+    flex: 1,
+    resizeMode: "cover",
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
+    overflow: "hidden",
+
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   noAvatarThumb: {

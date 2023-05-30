@@ -1,3 +1,5 @@
+// import React from "react";
+
 import {
   StyleSheet,
   Text,
@@ -15,17 +17,22 @@ import * as ImagePicker from "expo-image-picker";
 
 import { useState } from "react";
 
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 import { CustomButton } from "../../src/CustomButton";
 import { QuestionButton } from "../../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { storage } from "../../db/firebaseConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAuth } from "../../src/redux/auth/authSlice";
+import { selectUser } from "../../src/redux/auth/authSellectors";
 
 const initialUserState = {
   userName: "",
   email: "",
   password: "",
-  avatar: null,
 };
 
 export const RegistrationScreen = function ({ navigation }) {
@@ -39,8 +46,12 @@ export const RegistrationScreen = function ({ navigation }) {
 
   const [isShowPassword, setIsShowPassword] = useState(false);
 
-  // console.log("isShowKeyboard :>> ", isShowKeyboard);
+  const userInState = useSelector(selectUser);
+
+  console.log("userInState :>> ", userInState);
   // console.log("newUser :>> ", newUser);
+
+  const dispatch = useDispatch();
 
   const closeKeyBoard = () => {
     setIsShowKeyboard(false);
@@ -62,12 +73,31 @@ export const RegistrationScreen = function ({ navigation }) {
     setIsShowKeyboard(true);
   };
 
-  const onSubmitHandler = () => {
-    console.log("newUser :>> ", newUser);
+  const uploadAvatarToFirebase = async () => {
+    const res = await fetch(avatar);
+    const avatarFile = await res.blob();
+
+    const fileStorage = ref(storage, `avatars/${avatarFile.data.blobId}`);
+    await uploadBytes(fileStorage, avatarFile);
+    const avatarURL = await getDownloadURL(
+      ref(storage, `avatars/${avatarFile.data.blobId}`)
+    );
+
+    return avatarURL;
+  };
+
+  const onSubmitHandler = async () => {
     setNewUser(initialUserState);
     setIsShowPassword(false);
     closeKeyBoard();
+
+    const avatarURL = await uploadAvatarToFirebase();
     navigation.navigate("Home");
+    // console.log("avatarURL :>> ", avatarURL);
+
+    console.log("submit form :>> ", { ...newUser, avatarURL });
+
+    dispatch(updateAuth({ ...newUser, avatarURL, id: Date.now() }));
   };
 
   //setAvatar
@@ -78,7 +108,7 @@ export const RegistrationScreen = function ({ navigation }) {
       allowsEditing: true,
       quality: 0.5,
     });
-    console.log("avatar :>> ", avatar.assets);
+    // console.log("avatar :>> ", avatar.assets);
     if (avatar.canceled) return;
 
     setAvatar(avatar.assets[0].uri);

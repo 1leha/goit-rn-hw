@@ -20,6 +20,8 @@ import { MapScreen } from "../postNestedScreens/MapScreen";
 import { CommentsScreen } from "../postNestedScreens/CommentsScreen";
 
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { clearAuth } from "../../src/redux/auth/authSlice";
 
 export const PostsScreen = function () {
   // const [posts, setPosts] = useState([]);
@@ -28,6 +30,8 @@ export const PostsScreen = function () {
   const navigation = useNavigation();
 
   const insets = useSafeAreaInsets();
+
+  const dispatch = useDispatch();
 
   // const { params } = useRoute();
 
@@ -38,6 +42,13 @@ export const PostsScreen = function () {
   //   }
   //   setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
   // }, [params]);
+
+  const logOut = () => {
+    console.log("logOut");
+
+    dispatch(clearAuth());
+    navigation.navigate("Login");
+  };
 
   return (
     <SafeAreaView
@@ -62,9 +73,7 @@ export const PostsScreen = function () {
               <TouchableOpacity
                 style={{ marginRight: 16 }}
                 activeOpacity={0.7}
-                onPress={() => {
-                  navigation.navigate("Login");
-                }}
+                onPress={logOut}
               >
                 <Feather name="log-out" size={24} color="#BDBDBD" />
               </TouchableOpacity>
