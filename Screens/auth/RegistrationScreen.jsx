@@ -28,6 +28,7 @@ import { storage } from "../../db/firebaseConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAuth } from "../../src/redux/auth/authSlice";
 import { selectUser } from "../../src/redux/auth/authSellectors";
+import { registerUser } from "../../src/redux/auth/authOperations";
 
 const initialUserState = {
   userName: "",
@@ -48,7 +49,7 @@ export const RegistrationScreen = function ({ navigation }) {
 
   const userInState = useSelector(selectUser);
 
-  console.log("userInState :>> ", userInState);
+  // console.log("userInState :>> ", userInState);
   // console.log("newUser :>> ", newUser);
 
   const dispatch = useDispatch();
@@ -91,13 +92,13 @@ export const RegistrationScreen = function ({ navigation }) {
     setIsShowPassword(false);
     closeKeyBoard();
 
-    const avatarURL = await uploadAvatarToFirebase();
+    const avatarURL = avatar ? await uploadAvatarToFirebase() : null;
     navigation.navigate("Home");
     // console.log("avatarURL :>> ", avatarURL);
 
-    console.log("submit form :>> ", { ...newUser, avatarURL });
+    // console.log("submit form :>> ", { ...newUser, avatarURL });
 
-    dispatch(updateAuth({ ...newUser, avatarURL, id: Date.now() }));
+    dispatch(registerUser({ ...newUser, avatarURL, id: Date.now() }));
   };
 
   //setAvatar

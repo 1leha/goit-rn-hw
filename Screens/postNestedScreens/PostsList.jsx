@@ -170,6 +170,7 @@ export const PostsList = function () {
           ItemSeparatorComponent={<View style={styles.separator}></View>}
         />
       )}
+
       {/* </View> */}
     </SafeAreaView>
   );
