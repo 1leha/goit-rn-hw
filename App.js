@@ -7,9 +7,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { RegistrationScreen } from "./Screens/auth/RegistrationScreen";
 import { LoginScreen } from "./Screens/auth/LoginScreen";
 import { HomeScreen } from "./Screens/main/HomeScreen";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./src/redux/store";
+
+import { AppRouter } from "./src/AppRouter/AppRouter";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -22,30 +24,12 @@ export default function App() {
     return null;
   }
 
-  const AuthNav = createStackNavigator();
-
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <AuthNav.Navigator initialRouteName="Login">
-              <AuthNav.Screen
-                options={{ headerShown: false }}
-                name="Registration"
-                component={RegistrationScreen}
-              />
-              <AuthNav.Screen
-                options={{ headerShown: false }}
-                name="Login"
-                component={LoginScreen}
-              />
-              <AuthNav.Screen
-                options={{ headerShown: false }}
-                name="Home"
-                component={HomeScreen}
-              />
-            </AuthNav.Navigator>
+            <AppRouter />
           </NavigationContainer>
         </SafeAreaProvider>
       </PersistGate>

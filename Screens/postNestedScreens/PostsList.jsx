@@ -20,6 +20,7 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/core";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../src/redux/auth/authSellectors";
+import * as operation from "../../src/redux/auth/authOperations";
 
 // const user = {
 //   id: 1,

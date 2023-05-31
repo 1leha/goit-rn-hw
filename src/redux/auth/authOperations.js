@@ -1,4 +1,4 @@
-import { authSlice, updateAuth } from "./authSlice";
+import { authSlice, clearAuth, updateAuth } from "./authSlice";
 import { auth } from "../../../db/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
@@ -9,8 +9,6 @@ import {
 } from "firebase/auth";
 
 export const registerUser = (userData) => async (dispatch, _) => {
-  //   console.log("userData >>>>>", userData);
-  //   console.log("dispatch >>>>>", await dispatch);
   const { userName, email, password, avatarURL } = userData;
   try {
     await createUserWithEmailAndPassword(auth, email, password);
@@ -24,8 +22,48 @@ export const registerUser = (userData) => async (dispatch, _) => {
     dispatch(
       updateAuth({ id: uid, userName: displayName, email, avatarURL: photoURL })
     );
+  } catch (error) {
+    console.log("error :>> ", error.message);
+  }
+};
 
-    // console.log("auth :>> ", auth.currentUser);
+export const loginUser = (userData) => async (dispatch, _) => {
+  const { email, password } = userData;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+
+    const user = auth.currentUser;
+
+    dispatch(
+      updateAuth({
+        id: user.uid,
+        userName: user.displayName,
+        email: user.email,
+        avatarURL: user.photoURL,
+      })
+    );
+  } catch (error) {
+    console.log("error :>> ", error.message);
+  }
+};
+
+export const logOutUser = () => async (dispatch, _) => {
+  try {
+    await signOut(auth);
+    dispatch(clearAuth());
+
+    console.log("User successfully logout!");
+  } catch (error) {
+    console.log("error :>> ", error.message);
+  }
+};
+
+export const changeUserState = () => async (dispatch, _) => {
+  try {
+    await signOut(auth);
+    dispatch(clearAuth());
+
+    console.log("User successfully logout...");
   } catch (error) {
     console.log("error :>> ", error.message);
   }

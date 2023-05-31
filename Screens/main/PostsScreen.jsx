@@ -21,7 +21,7 @@ import { CommentsScreen } from "../postNestedScreens/CommentsScreen";
 
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
-import { clearAuth } from "../../src/redux/auth/authSlice";
+import * as operation from "../../src/redux/auth/authOperations";
 
 export const PostsScreen = function () {
   // const [posts, setPosts] = useState([]);
@@ -44,10 +44,9 @@ export const PostsScreen = function () {
   // }, [params]);
 
   const logOut = () => {
-    console.log("logOut");
+    // console.log("logOut");
 
-    dispatch(clearAuth());
-    navigation.navigate("Login");
+    dispatch(operation.logOutUser());
   };
 
   return (
