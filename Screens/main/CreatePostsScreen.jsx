@@ -55,7 +55,7 @@ export const CreatePostsScreen = () => {
 
   // Camera permission
   useEffect(() => {
-    console.log("useEffect");
+    // console.log("useEffect");
     (async () => {
       let { status: cameraStatus } =
         await Camera.requestCameraPermissionsAsync();
@@ -125,13 +125,11 @@ export const CreatePostsScreen = () => {
   const publicPost = async () => {
     const photoURL = await uploadPhotoToFirebase("posts", photo);
 
-    // const location = await Location.getCurrentPositionAsync({});
-    // console.log("location :>> ", location && "UPS!!!");
-
     await addDoc(dbCollection.posts, {
       ...formState,
       photoLocation,
       photoURL,
+      comments: 0,
     });
 
     navigation.navigate("PostsList");

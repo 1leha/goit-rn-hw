@@ -142,7 +142,7 @@ export const PostsList = function () {
             </View>
           )}
           keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={<View style={styles.separator}></View>}
+          // ItemSeparatorComponent={<View style={styles.separator}></View>}
         />
       )}
 

@@ -19,35 +19,41 @@ import { useNavigation, useRoute } from "@react-navigation/core";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import * as dbCollection from "../../db/collections";
-import { addDoc, onSnapshot } from "firebase/firestore";
+import { addDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../src/redux/auth/authSellectors";
-import { ScrollView } from "react-native-gesture-handler";
 import { Avatar } from "../../src/Avatar";
+import { formatDate } from "../../src/helpers/formatDate";
 
 export const CommentsScreen = () => {
-  const [comment, setComment] = useState("");
-  const [commentsList, setCommentsList] = useState("");
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-
+  const { id: userId, avatarURL } = useSelector(selectUser);
   const {
     params: { photo, postId },
   } = useRoute();
 
+  const [comment, setComment] = useState("");
+  const [commentsList, setCommentsList] = useState([]);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const { id: userId, avatarURL } = useSelector(selectUser);
 
   const closeKeyBoard = () => {
     if (!isShowKeyboard) return;
-    console.log("closeKeyBoard");
     setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
 
   const getComments = () => {
     onSnapshot(dbCollection.comments(postId), (data) => {
-      const comments = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      const comments = data.docs
+        .map((doc) => {
+          return {
+            ...doc.data(),
+            id: doc.id,
+          };
+        })
+        .sort((a, b) => b.createdAt - a.createdAt);
       console.log("comments :>> ", comments);
       setCommentsList(comments);
     });
@@ -62,12 +68,18 @@ export const CommentsScreen = () => {
   }, [postId]);
 
   const publishComment = async () => {
-    console.log("publishComment", { userId, avatarURL, comment });
+    // console.log("publishComment", { userId, avatarURL, comment });
+    if (!comment) return;
 
-    const uploadedComment = await addDoc(dbCollection.comments(postId), {
+    await addDoc(dbCollection.comments(postId), {
       userId,
       avatarURL,
       comment,
+      createdAt: Date.now(),
+    });
+
+    await updateDoc(dbCollection.postRef(postId), {
+      comments: commentsList.length + 1,
     });
 
     setComment("");
@@ -95,21 +107,38 @@ export const CommentsScreen = () => {
           ListHeaderComponent={
             <Image source={{ uri: photo }} style={styles.photo} />
           }
-          renderItem={({ item }) => (
-            <View
-              style={{
-                ...styles.commentWrapper,
-                flexDirection: userId === item.userId ? "row-reverse" : "row",
-              }}
-            >
-              {/* <Image source={{ uri: item.avatarURL }} style={styles.avatar} /> */}
-              <Avatar size={28} uri={item.avatarURL} />
-              <View style={styles.commentBox}>
-                <Text style={styles.comment}>{item.comment}</Text>
+          renderItem={({ item }) => {
+            const isOwner = userId === item.userId;
+
+            return (
+              <View
+                style={{
+                  ...styles.commentWrapper,
+                  flexDirection: isOwner ? "row-reverse" : "row",
+                }}
+              >
+                <Avatar size={28} uri={item.avatarURL} />
+                <View
+                  style={[
+                    styles.commentBox,
+                    isOwner ? styles.radiusLeft : styles.radiusRight,
+                  ]}
+                >
+                  <Text style={styles.comment}>{item.comment}</Text>
+                  <Text
+                    style={{
+                      ...styles.commentData,
+                      textAlign: isOwner ? "left" : "right",
+                    }}
+                  >
+                    {formatDate(item.createdAt)}
+                  </Text>
+                </View>
               </View>
-            </View>
-          )}
+            );
+          }}
         />
+
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "heigh"}
         >
@@ -124,11 +153,18 @@ export const CommentsScreen = () => {
               onChangeText={(value) => setComment(value)}
             />
             <TouchableOpacity
-              activeOpacity={0.7}
-              style={styles.commentButton}
+              activeOpacity={comment ? 0.7 : 1}
+              style={{
+                ...styles.commentButton,
+                backgroundColor: comment ? "#FF6C00" : "#E8E8E8",
+              }}
               onPress={publishComment}
             >
-              <Feather name="arrow-up" size={24} color="#FFFFFF" />
+              <Feather
+                name="arrow-up"
+                size={24}
+                color={comment ? "#FFFFFF" : "#BDBDBD"}
+              />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -197,7 +233,29 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.03)",
     padding: 16,
     marginBottom: 24,
-    borderRadius: 6,
+  },
+  radiusLeft: {
+    borderTopLeftRadius: 6,
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
+  },
+  radiusRight: {
+    borderTopRightRadius: 6,
+    borderBottomRightRadius: 6,
+    borderBottomLeftRadius: 6,
+  },
+
+  comment: {
+    fontFamily: "Roboto-Regular",
+    color: "#212121",
+    fontSize: 13,
+    marginBottom: 8,
+  },
+
+  commentData: {
+    fontFamily: "Roboto-Regular",
+    color: "#BDBDBD",
+    fontSize: 10,
   },
 
   avatar: {
@@ -206,11 +264,5 @@ const styles = StyleSheet.create({
     height: 28,
     width: 28,
     borderRadius: 50,
-  },
-
-  comment: {
-    fontFamily: "Roboto-Regular",
-    color: "#212121",
-    fontSize: 13,
   },
 });
