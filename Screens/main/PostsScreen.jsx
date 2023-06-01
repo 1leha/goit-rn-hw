@@ -20,6 +20,8 @@ import { MapScreen } from "../postNestedScreens/MapScreen";
 import { CommentsScreen } from "../postNestedScreens/CommentsScreen";
 
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import * as operation from "../../src/redux/auth/authOperations";
 
 export const PostsScreen = function () {
   // const [posts, setPosts] = useState([]);
@@ -29,21 +31,16 @@ export const PostsScreen = function () {
 
   const insets = useSafeAreaInsets();
 
-  // const { params } = useRoute();
+  const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   console.log("params :>> ", params);
-  //   if (!params) {
-  //     return;
-  //   }
-  //   setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
-  // }, [params]);
+  const logOut = () => {
+    dispatch(operation.logOutUser());
+  };
 
   return (
     <SafeAreaView
       style={{
         ...styles.container,
-        // paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
     >
@@ -62,9 +59,7 @@ export const PostsScreen = function () {
               <TouchableOpacity
                 style={{ marginRight: 16 }}
                 activeOpacity={0.7}
-                onPress={() => {
-                  navigation.navigate("Login");
-                }}
+                onPress={logOut}
               >
                 <Feather name="log-out" size={24} color="#BDBDBD" />
               </TouchableOpacity>
@@ -87,7 +82,7 @@ export const PostsScreen = function () {
             headerLeft: () => (
               <TouchableOpacity
                 style={{ marginLeft: 16 }}
-                activeOpacity={0.5}
+                activeOpacity={0.7}
                 onPress={() => {
                   navigation.navigate("PostsList");
                 }}

@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Image,
 } from "react-native";
-
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -26,6 +25,12 @@ import { CustomButton } from "../../src/CustomButton";
 
 import { useNavigation } from "@react-navigation/native";
 
+import { db, storage } from "../../db/firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc, onSnapshot } from "firebase/firestore";
+import * as dbCollection from "../../db/collections";
+import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
+
 const initFormState = { description: "", place: "" };
 
 export const CreatePostsScreen = () => {
@@ -38,8 +43,8 @@ export const CreatePostsScreen = () => {
 
   const [photo, setPhoto] = useState(null);
 
-  const [myLocation, setMyLocation] = useState(null);
-  const [myGeo, setMyGeo] = useState(null);
+  const [photoLocation, setPhotoLocation] = useState(null);
+  const [photoGeo, setPhotoGeo] = useState(null);
 
   const [formState, setFormState] = useState(initFormState);
 
@@ -50,13 +55,15 @@ export const CreatePostsScreen = () => {
 
   // Camera permission
   useEffect(() => {
-    // console.log("useEffect");
+    console.log("useEffect");
     (async () => {
       let { status: cameraStatus } =
         await Camera.requestCameraPermissionsAsync();
       if (cameraStatus !== "granted") {
         console.log("Permission to camera access was denied!");
       }
+      console.log("cameraStatus :>> ", cameraStatus);
+
       await MediaLibrary.requestPermissionsAsync();
       setHasCameraPermission(cameraStatus === "granted");
 
@@ -66,22 +73,23 @@ export const CreatePostsScreen = () => {
       if (locationStatus !== "granted") {
         console.log("Permission to access location was denied!");
       }
+      console.log("locationStatus :>> ", locationStatus);
 
-      let location = await Location.getCurrentPositionAsync({});
-      console.log("location :>> ", location);
+      const location = await Location.getCurrentPositionAsync({});
+      console.log("location :>> ", location && "UPS!!!");
 
-      let geo = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-      // console.log("geo :>> ", geo);
-
-      setMyLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-
-      setMyGeo({ city: geo[0].city, country: geo[0].country });
+      if (location) {
+        setPhotoLocation({
+          latitude: location?.coords?.latitude ?? null,
+          longitude: location?.coords?.longitude ?? null,
+        });
+        const geo = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+        console.log("geo :>> ", geo);
+        setPhotoGeo({ city: geo[0].city, country: geo[0].country });
+      }
     })();
   }, []);
 
@@ -107,22 +115,26 @@ export const CreatePostsScreen = () => {
 
       setFormState((prevState) => ({
         ...prevState,
-        place: `${myGeo?.city ?? "Your city"}, ${
-          myGeo?.country ?? "Your country"
+        place: `${photoGeo?.city ?? "Your city"}, ${
+          photoGeo?.country ?? "Your country"
         }`,
       }));
     }
   };
 
-  const publicPost = () => {
-    // console.log("formState :>> ", formState);
-    const params = {
-      ...formState,
-      photo,
-      myLocation,
-    };
+  const publicPost = async () => {
+    const photoURL = await uploadPhotoToFirebase("posts", photo);
 
-    navigation.navigate("PostsList", params);
+    // const location = await Location.getCurrentPositionAsync({});
+    // console.log("location :>> ", location && "UPS!!!");
+
+    await addDoc(dbCollection.posts, {
+      ...formState,
+      photoLocation,
+      photoURL,
+    });
+
+    navigation.navigate("PostsList");
 
     setPhoto(null);
     setFormState(initFormState);
@@ -141,105 +153,109 @@ export const CreatePostsScreen = () => {
           paddingBottom: insets.bottom,
         }}
       >
-        <View style={styles.pageWrapper}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "heigh"}
-          >
-            <View style={styles.form}>
-              <View style={styles.uploadImageContainer}>
-                <View style={styles.imageContainer}>
-                  {photo ? (
-                    <Image style={styles.image} source={{ uri: photo }} />
-                  ) : (
-                    <Camera
-                      style={styles.camera}
-                      ref={setCameraRef}
-                      type={cameraType}
-                      ratio="1:1"
-                    />
-                  )}
+        {true && (
+          <View style={styles.pageWrapper}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "heigh"}
+            >
+              <View style={styles.form}>
+                <View style={styles.uploadImageContainer}>
+                  <View style={styles.imageContainer}>
+                    {photo ? (
+                      <Image style={styles.image} source={{ uri: photo }} />
+                    ) : (
+                      <Camera
+                        style={styles.camera}
+                        ref={setCameraRef}
+                        type={cameraType}
+                        ratio="1:1"
+                      />
+                    )}
 
-                  <TouchableOpacity
-                    activeOpacity={photo || cameraRef ? 0.7 : 1}
-                    onPress={takePhoto}
-                    style={[
-                      styles.cameraIconContainer,
-                      (photo || cameraRef) && { backgroundColor: "#FFFFFF55" },
-                    ]}
-                  >
-                    <MaterialIcons
-                      name="camera-alt"
-                      size={24}
-                      color={photo ? "#FFFFFF" : "#BDBDBD"}
-                    />
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={photo || cameraRef ? 0.7 : 1}
+                      onPress={takePhoto}
+                      style={[
+                        styles.cameraIconContainer,
+                        (photo || cameraRef) && {
+                          backgroundColor: "#FFFFFF55",
+                        },
+                      ]}
+                    >
+                      <MaterialIcons
+                        name="camera-alt"
+                        size={24}
+                        color={photo ? "#FFFFFF" : "#BDBDBD"}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={{ ...styles.photoText }}>
+                    {photo ? "Редактировать фото" : "Загрузите фото"}
+                  </Text>
                 </View>
-
-                <Text style={{ ...styles.photoText }}>
-                  {photo ? "Редактировать фото" : "Загрузите фото"}
-                </Text>
-              </View>
-              <TextInput
-                placeholder="Название..."
-                placeholderTextColor="#BDBDBD"
-                style={[
-                  { ...styles.textInputs },
-                  isDescriptionFocused && styles.inputIsFocused,
-                ]}
-                onFocus={onFocusDescriptionHandler}
-                onBlur={() => setIsDescriptionFocused(false)}
-                onChangeText={(value) =>
-                  setFormState((prevState) => ({
-                    ...prevState,
-                    description: value,
-                  }))
-                }
-                value={formState.description}
-              />
-
-              <View style={styles.placeInputContainer}>
-                <SimpleLineIcons
-                  style={styles.placeIcon}
-                  name="location-pin"
-                  size={24}
-                  color="#BDBDBD"
-                />
-
                 <TextInput
-                  placeholder="Местность..."
+                  placeholder="Название..."
                   placeholderTextColor="#BDBDBD"
-                  style={{ ...styles.placeInput }}
-                  onFocus={onFocusPlaceHandler}
-                  onBlur={() => setIsPlaceFocused(false)}
+                  style={[
+                    { ...styles.textInputs },
+                    isDescriptionFocused && styles.inputIsFocused,
+                  ]}
+                  onFocus={onFocusDescriptionHandler}
+                  onBlur={() => setIsDescriptionFocused(false)}
                   onChangeText={(value) =>
                     setFormState((prevState) => ({
                       ...prevState,
-                      place: value,
+                      description: value,
                     }))
                   }
-                  value={formState.place}
+                  value={formState.description}
                 />
+
+                <View style={styles.placeInputContainer}>
+                  <SimpleLineIcons
+                    style={styles.placeIcon}
+                    name="location-pin"
+                    size={24}
+                    color="#BDBDBD"
+                  />
+
+                  <TextInput
+                    placeholder="Местность..."
+                    placeholderTextColor="#BDBDBD"
+                    style={{ ...styles.placeInput }}
+                    onFocus={onFocusPlaceHandler}
+                    onBlur={() => setIsPlaceFocused(false)}
+                    onChangeText={(value) =>
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        place: value,
+                      }))
+                    }
+                    value={formState.place}
+                  />
+                </View>
+
+                <CustomButton
+                  bgColor={photo ? "#FF6C00" : "#F6F6F6"}
+                  textColor={photo ? "#FFFFFF" : "#BDBDBD"}
+                  activeOpacity={photo ? 0.7 : 1}
+                  onPress={publicPost}
+                >
+                  Опубликовать
+                </CustomButton>
               </View>
+            </KeyboardAvoidingView>
 
-              <CustomButton
-                bgColor={photo ? "#FF6C00" : "#F6F6F6"}
-                textColor={photo ? "#FFFFFF" : "#BDBDBD"}
-                activeOpacity={photo ? 0.7 : 1}
-                onPress={publicPost}
-              >
-                Опубликовать
-              </CustomButton>
-            </View>
-          </KeyboardAvoidingView>
-
-          <TouchableOpacity
-            onPress={clearPost}
-            activeOpacity={photo ? 0.7 : 1}
-            style={styles.deleteButton}
-          >
-            <Feather name="trash-2" size={24} color="#BDBDBD" />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={clearPost}
+              activeOpacity={photo ? 0.7 : 1}
+              style={styles.deleteButton}
+            >
+              <Feather name="trash-2" size={24} color="#BDBDBD" />
+            </TouchableOpacity>
+          </View>
+        )}
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -319,12 +335,15 @@ const styles = StyleSheet.create({
   },
 
   form: {
+    marginTop: 32,
+
     display: "flex",
     gap: 32,
     height: 600,
   },
 
   photoText: {
+    marginTop: 8,
     fontSize: 16,
     fontWeight: 400,
     lineHeight: 19,

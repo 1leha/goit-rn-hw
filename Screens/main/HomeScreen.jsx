@@ -47,7 +47,7 @@ export const HomeScreen = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ marginLeft: 16 }}
-              activeOpacity={0.5}
+              activeOpacity={0.7}
               onPress={() => {
                 navigation.navigate("PostsScreen");
               }}

@@ -1,3 +1,5 @@
+// import React from "react";
+
 import {
   StyleSheet,
   Text,
@@ -11,20 +13,28 @@ import {
   TextInput,
   SafeAreaView,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 import { useState } from "react";
+
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { CustomButton } from "../../src/CustomButton";
 import { QuestionButton } from "../../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { storage } from "../../db/firebaseConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAuth } from "../../src/redux/auth/authSlice";
+import { selectUser } from "../../src/redux/auth/authSellectors";
+import * as operation from "../../src/redux/auth/authOperations";
+import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
 
 const initialUserState = {
   userName: "",
   email: "",
   password: "",
-  avatar: null,
 };
 
 export const RegistrationScreen = function ({ navigation }) {
@@ -38,8 +48,10 @@ export const RegistrationScreen = function ({ navigation }) {
 
   const [isShowPassword, setIsShowPassword] = useState(false);
 
-  // console.log("isShowKeyboard :>> ", isShowKeyboard);
+  // console.log("userInState :>> ", userInState);
   // console.log("newUser :>> ", newUser);
+
+  const dispatch = useDispatch();
 
   const closeKeyBoard = () => {
     setIsShowKeyboard(false);
@@ -61,12 +73,38 @@ export const RegistrationScreen = function ({ navigation }) {
     setIsShowKeyboard(true);
   };
 
-  const onSubmitHandler = () => {
-    console.log("newUser :>> ", newUser);
+  const onSubmitHandler = async () => {
     setNewUser(initialUserState);
     setIsShowPassword(false);
     closeKeyBoard();
-    navigation.navigate("Home");
+
+    const avatarURL = avatar
+      ? await uploadPhotoToFirebase("avatars", avatar)
+      : null;
+    // navigation.navigate("Home");
+    // console.log("avatarURL :>> ", avatarURL);
+
+    // console.log("submit form :>> ", { ...newUser, avatarURL });
+
+    dispatch(operation.registerUser({ ...newUser, avatarURL }));
+  };
+
+  //setAvatar
+
+  const chooseAvatar = async () => {
+    const avatar = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.5,
+    });
+    // console.log("avatar :>> ", avatar.assets);
+    if (avatar.canceled) return;
+
+    setAvatar(avatar.assets[0].uri);
+  };
+
+  const removeAvatar = () => {
+    setAvatar(null);
   };
 
   const insets = useSafeAreaInsets();
@@ -94,15 +132,26 @@ export const RegistrationScreen = function ({ navigation }) {
                 height: isShowKeyboard ? 590 : 520,
               }}
             >
-              <ImageBackground source={avatar} style={styles.avtar}>
-                <TouchableOpacity style={styles.addButton} activeOpacity={0.5}>
+              {/* avatar */}
+              <View style={styles.avtar}>
+                <ImageBackground
+                  source={{ uri: avatar }}
+                  style={styles.avtarImg}
+                />
+                <TouchableOpacity
+                  style={avatar ? styles.removeButton : styles.addButton}
+                  activeOpacity={0.7}
+                  onPress={avatar ? removeAvatar : chooseAvatar}
+                >
                   <Ionicons
-                    style={styles.addButtonIcon}
+                    style={
+                      avatar ? styles.removeButtonIcon : styles.addButtonIcon
+                    }
                     name="add-outline"
                     size={25}
                   />
                 </TouchableOpacity>
-              </ImageBackground>
+              </View>
 
               <Text style={styles.formTitle}>Регистрация</Text>
               <ScrollView
@@ -244,8 +293,15 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     backgroundColor: "#F6F6F6",
-    borderRadius: 16,
     zIndex: 100,
+    borderRadius: 16,
+  },
+
+  avtarImg: {
+    overflow: "hidden",
+    borderRadius: 16,
+
+    flex: 1,
   },
 
   addButton: {
@@ -268,10 +324,34 @@ const styles = StyleSheet.create({
   },
 
   addButtonIcon: {
-    // transform: [{ translateY: -2 }],
     top: -1,
 
     color: "#FF6C00",
+  },
+
+  removeButton: {
+    position: "absolute",
+    margin: 0,
+    padding: 0,
+
+    width: 25,
+    height: 25,
+
+    right: 0,
+    bottom: 14,
+    transform: [{ translateX: 25 / 2 }, { rotateZ: "45deg" }],
+
+    backgroundColor: "#FFFFFF",
+
+    borderColor: "#E8E8E8",
+    borderWidth: 1,
+    borderRadius: 50,
+  },
+
+  removeButtonIcon: {
+    top: -1,
+
+    color: "#E8E8E8",
   },
 
   formTitle: {

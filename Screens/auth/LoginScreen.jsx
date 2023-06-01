@@ -18,6 +18,8 @@ import { CustomButton } from "../../src/CustomButton";
 import { QuestionButton } from "../../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
+import * as operation from "../../src/redux/auth/authOperations";
 
 const initialUserState = {
   email: "",
@@ -25,7 +27,7 @@ const initialUserState = {
 };
 
 export const LoginScreen = function ({ navigation }) {
-  const [user, setUser] = useState(initialUserState);
+  const [userFormState, setUserFormState] = useState(initialUserState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -33,8 +35,7 @@ export const LoginScreen = function ({ navigation }) {
 
   const [isShowPassword, setIsShowPassword] = useState(false);
 
-  // console.log("isShowKeyboard :>> ", isShowKeyboard);
-  // console.log("newUser :>> ", newUser);
+  const dispatch = useDispatch();
 
   const closeKeyBoard = () => {
     setIsShowKeyboard(false);
@@ -52,12 +53,14 @@ export const LoginScreen = function ({ navigation }) {
   };
 
   const onSubmitHandler = () => {
-    console.log("user :>> ", user);
-    setUser(initialUserState);
+    // console.log("onSubmitHandler userFormState :>> ", userFormState);
+    setUserFormState(initialUserState);
     setIsShowPassword(false);
 
     closeKeyBoard();
-    navigation.navigate("Home");
+
+    dispatch(operation.loginUser(userFormState));
+    // navigation.navigate("Home");
   };
 
   const insets = useSafeAreaInsets();
@@ -92,6 +95,7 @@ export const LoginScreen = function ({ navigation }) {
               >
                 <View style={styles.inputsList}>
                   <TextInput
+                    autoComplete="email"
                     placeholder="Адрес электронной почты"
                     textContentType="emailAddress"
                     placeholderTextColor="#BDBDBD"
@@ -103,12 +107,12 @@ export const LoginScreen = function ({ navigation }) {
                     onFocus={onFocusEmailHandler}
                     onBlur={() => setIsEmailFocused(false)}
                     onChangeText={(value) =>
-                      setUser((prevState) => ({
+                      setUserFormState((prevState) => ({
                         ...prevState,
                         email: value,
                       }))
                     }
-                    value={user.email}
+                    value={userFormState.email}
                   />
 
                   <View style={styles.passwordWrapper}>
@@ -125,12 +129,12 @@ export const LoginScreen = function ({ navigation }) {
                       onFocus={onFocusPassowordHandler}
                       onBlur={() => setIsPasswordFocused(false)}
                       onChangeText={(value) =>
-                        setUser((prevState) => ({
+                        setUserFormState((prevState) => ({
                           ...prevState,
                           password: value,
                         }))
                       }
-                      value={user.password}
+                      value={userFormState.password}
                     />
 
                     <TouchableOpacity

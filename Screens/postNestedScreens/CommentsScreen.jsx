@@ -8,6 +8,8 @@ import {
   Text,
   TextInput,
   SafeAreaView,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 import { Ionicons, Feather } from "@expo/vector-icons";
@@ -16,44 +18,83 @@ import { useState, useEffect } from "react";
 import { useNavigation, useRoute } from "@react-navigation/core";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const allComments = [
-  { id: 1, comment: "Lorem ipsum1", name: "Dodz", userId: 1, avatar: null },
-  { id: 2, comment: "Lorem ipsum2", name: "Alex", userId: 2, avatar: null },
-  { id: 3, comment: "Lorem ipsum3", name: "Dodz", userId: 1, avatar: null },
-  { id: 4, comment: "Lorem ipsum3", name: "Dodz", userId: 1, avatar: null },
-  { id: 5, comment: "Lorem ipsum3", name: "Dodz", userId: 1, avatar: null },
-  { id: 6, comment: "Lorem ipsum3", name: "Dodz", userId: 1, avatar: null },
-  { id: 7, comment: "Lorem ipsum3", name: "Dodz", userId: 1, avatar: null },
-  { id: 8, comment: "Lorem ipsum3", name: "Dodz", userId: 1, avatar: null },
-];
-
-const userId = 1;
+import * as dbCollection from "../../db/collections";
+import { addDoc, onSnapshot } from "firebase/firestore";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../src/redux/auth/authSellectors";
+import { ScrollView } from "react-native-gesture-handler";
+import { Avatar } from "../../src/Avatar";
 
 export const CommentsScreen = () => {
   const [comment, setComment] = useState("");
+  const [commentsList, setCommentsList] = useState("");
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  const navigation = useNavigation();
   const {
     params: { photo, postId },
   } = useRoute();
 
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const { id: userId, avatarURL } = useSelector(selectUser);
+
+  const closeKeyBoard = () => {
+    if (!isShowKeyboard) return;
+    console.log("closeKeyBoard");
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+  };
+
+  const getComments = () => {
+    onSnapshot(dbCollection.comments(postId), (data) => {
+      const comments = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      console.log("comments :>> ", comments);
+      setCommentsList(comments);
+    });
+  };
+
+  // get comments from firebase
+  useEffect(() => {
+    getComments();
+    console.log("useEffect commentsList :>> ", commentsList);
+
+    return () => setCommentsList(null);
+  }, [postId]);
+
+  const publishComment = async () => {
+    console.log("publishComment", { userId, avatarURL, comment });
+
+    const uploadedComment = await addDoc(dbCollection.comments(postId), {
+      userId,
+      avatarURL,
+      comment,
+    });
+
+    setComment("");
+    closeKeyBoard();
+  };
 
   return (
     <SafeAreaView
       style={{
         ...styles.container,
         paddingBottom: insets.bottom,
+        gap: 32,
       }}
     >
-      <View style={styles.body}>
-        <Image source={{ uri: photo }} style={styles.photo} />
-
+      <View
+        style={{
+          ...styles.body,
+          paddingBottom: isShowKeyboard ? 230 : 8,
+        }}
+      >
         {/* Comments list */}
         <FlatList
-          data={allComments}
+          data={commentsList}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={
+            <Image source={{ uri: photo }} style={styles.photo} />
+          }
           renderItem={({ item }) => (
             <View
               style={{
@@ -61,31 +102,36 @@ export const CommentsScreen = () => {
                 flexDirection: userId === item.userId ? "row-reverse" : "row",
               }}
             >
-              <Image source={{ uri: item.avatar }} style={styles.avatar} />
-              <View style={styles.commentContainer}>
+              {/* <Image source={{ uri: item.avatarURL }} style={styles.avatar} /> */}
+              <Avatar size={28} uri={item.avatarURL} />
+              <View style={styles.commentBox}>
                 <Text style={styles.comment}>{item.comment}</Text>
               </View>
             </View>
           )}
         />
-
-        <View>
-          <TextInput
-            style={styles.input}
-            value={comment}
-            placeholder={"Коментувати..."}
-            placeholderTextColor={"#BDBDBD"}
-            onFocus={() => setIsShowKeyboard(true)}
-            onChangeText={(value) => setComment(value)}
-          />
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.commentButton}
-            onPress={null}
-          >
-            <Feather name="arrow-up" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "heigh"}
+        >
+          <View>
+            <TextInput
+              style={styles.input}
+              value={comment}
+              placeholder={"Коментувати..."}
+              placeholderTextColor={"#BDBDBD"}
+              onFocus={() => setIsShowKeyboard(true)}
+              onBlur={closeKeyBoard}
+              onChangeText={(value) => setComment(value)}
+            />
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={styles.commentButton}
+              onPress={publishComment}
+            >
+              <Feather name="arrow-up" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
   );
@@ -105,13 +151,13 @@ const styles = StyleSheet.create({
 
     display: "flex",
     gap: 32,
-    paddingBottom: 8,
     justifyContent: "space-between",
   },
 
   photo: {
     height: 240,
     borderRadius: 8,
+    marginBottom: 32,
   },
 
   input: {
@@ -128,8 +174,9 @@ const styles = StyleSheet.create({
   },
 
   commentWrapper: {
-    justifyContent: "center",
-    alignItems: "center",
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     gap: 16,
   },
 
@@ -145,9 +192,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
 
-  commentContainer: {
+  commentBox: {
+    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.03)",
-    width: 299,
     padding: 16,
     marginBottom: 24,
     borderRadius: 6,
@@ -160,6 +207,7 @@ const styles = StyleSheet.create({
     width: 28,
     borderRadius: 50,
   },
+
   comment: {
     fontFamily: "Roboto-Regular",
     color: "#212121",
