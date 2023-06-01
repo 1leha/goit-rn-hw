@@ -20,39 +20,12 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/core";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../src/redux/auth/authSellectors";
-import * as operation from "../../src/redux/auth/authOperations";
 
-// const user = {
-//   id: 1,
-//   userName: "Alex",
-//   email: "alex.PO@mail.com",
-//   avatar: null,
-// };
-
-// const posts = [
-//   {
-//     id: 1,
-//     description: "Предмет",
-//     myLocation: {
-//       latitude: 1.125012,
-//       longitude: 2.5217617,
-//     },
-//     photo:
-//       "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%25401leha%252Fgoit-rn-hw/Camera/80fcef52-616c-45b0-978a-237862a993ab.jpg",
-//     place: "Якесь місто, Украина",
-//   },
-//   {
-//     id: 2,
-//     description: "Предмет",
-//     myLocation: {
-//       latitude: 30.125012,
-//       longitude: 40.5217617,
-//     },
-//     photo:
-//       "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%25401leha%252Fgoit-rn-hw/Camera/80fcef52-616c-45b0-978a-237862a993ab.jpg",
-//     place: "Місто, Украина",
-//   },
-// ];
+import { db, storage } from "../../db/firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { addDoc, onSnapshot } from "firebase/firestore";
+import * as dbCollection from "../../db/collections";
+import { Avatar } from "../../src/Avatar";
 
 const DefaultUserIcon = ({ ...props }) => (
   <Feather name="user" size={24} {...props} />
@@ -61,19 +34,25 @@ const DefaultUserIcon = ({ ...props }) => (
 export const PostsList = function () {
   const [posts, setPosts] = useState([]);
   const navigation = useNavigation();
-  const { params } = useRoute();
+  // const { params } = useRoute();
 
   const insets = useSafeAreaInsets();
 
   const user = useSelector(selectUser);
 
-  // Emulation DB
+  const getPosts = async () => {
+    onSnapshot(dbCollection.posts, (data) => {
+      const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setPosts(posts);
+      console.log("posts :>> ", posts);
+    });
+  };
+
+  // get posts from firebase
   useEffect(() => {
-    if (!params) {
-      return;
-    }
-    setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
-  }, [params]);
+    getPosts();
+    console.log("useEffect posts :>> ", posts);
+  }, []);
 
   return (
     <SafeAreaView
@@ -84,23 +63,18 @@ export const PostsList = function () {
     >
       {/* user */}
       {user.id && (
-        <View style={styles.userCard}>
-          <View
-            style={[styles.avatarThumb, user.avatarURL ?? styles.noAvatarThumb]}
-          >
-            <ImageBackground
-              source={{ uri: user.avatarURL }}
-              style={styles.avatar}
-            >
-              {!user.avatarURL && <DefaultUserIcon color="#BDBDBD" />}
-            </ImageBackground>
-          </View>
+        <TouchableOpacity
+          style={styles.userCard}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate("ProfileScreen")}
+        >
+          <Avatar size={60} uri={user.avatarURL} />
 
           <View style={styles.cardTextWrapper}>
             <Text style={{ ...styles.userName }}>{user.userName}</Text>
             <Text style={{ ...styles.email }}>{user.email}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       )}
 
       {/* posts */}
@@ -110,7 +84,7 @@ export const PostsList = function () {
           renderItem={({ item }) => (
             <View style={styles.postCard}>
               <View style={styles.postCardThumb}>
-                <Image source={{ uri: item.photo }} style={styles.image} />
+                <Image source={{ uri: item.photoURL }} style={styles.image} />
               </View>
 
               <Text style={{ ...styles.description }}>{item.description}</Text>
@@ -123,7 +97,7 @@ export const PostsList = function () {
                   onPress={() =>
                     navigation.navigate("CommentsScreen", {
                       postId: item.id,
-                      photo: item.photo,
+                      photo: item.photoURL,
                     })
                   }
                 >
@@ -149,8 +123,8 @@ export const PostsList = function () {
                   onPress={() =>
                     navigation.navigate("MapScreen", {
                       coords: {
-                        latitude: item.myLocation.latitude,
-                        longitude: item.myLocation.longitude,
+                        latitude: item.photoLocation.latitude,
+                        longitude: item.photoLocation.longitude,
                       },
                       place: item.place,
                       description: item.description,

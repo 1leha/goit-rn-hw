@@ -33,19 +33,7 @@ export const PostsScreen = function () {
 
   const dispatch = useDispatch();
 
-  // const { params } = useRoute();
-
-  // useEffect(() => {
-  //   console.log("params :>> ", params);
-  //   if (!params) {
-  //     return;
-  //   }
-  //   setPosts((prev) => [...prev, { ...params, id: prev.length + 1 }]);
-  // }, [params]);
-
   const logOut = () => {
-    // console.log("logOut");
-
     dispatch(operation.logOutUser());
   };
 
@@ -53,7 +41,6 @@ export const PostsScreen = function () {
     <SafeAreaView
       style={{
         ...styles.container,
-        // paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
     >

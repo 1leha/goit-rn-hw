@@ -29,6 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateAuth } from "../../src/redux/auth/authSlice";
 import { selectUser } from "../../src/redux/auth/authSellectors";
 import * as operation from "../../src/redux/auth/authOperations";
+import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
 
 const initialUserState = {
   userName: "",
@@ -46,8 +47,6 @@ export const RegistrationScreen = function ({ navigation }) {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const [isShowPassword, setIsShowPassword] = useState(false);
-
-  const userInState = useSelector(selectUser);
 
   // console.log("userInState :>> ", userInState);
   // console.log("newUser :>> ", newUser);
@@ -74,25 +73,14 @@ export const RegistrationScreen = function ({ navigation }) {
     setIsShowKeyboard(true);
   };
 
-  const uploadAvatarToFirebase = async () => {
-    const res = await fetch(avatar);
-    const avatarFile = await res.blob();
-
-    const fileStorage = ref(storage, `avatars/${avatarFile.data.blobId}`);
-    await uploadBytes(fileStorage, avatarFile);
-    const avatarURL = await getDownloadURL(
-      ref(storage, `avatars/${avatarFile.data.blobId}`)
-    );
-
-    return avatarURL;
-  };
-
   const onSubmitHandler = async () => {
     setNewUser(initialUserState);
     setIsShowPassword(false);
     closeKeyBoard();
 
-    const avatarURL = avatar ? await uploadAvatarToFirebase() : null;
+    const avatarURL = avatar
+      ? await uploadPhotoToFirebase("avatars", avatar)
+      : null;
     // navigation.navigate("Home");
     // console.log("avatarURL :>> ", avatarURL);
 
