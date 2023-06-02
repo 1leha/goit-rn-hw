@@ -56,41 +56,45 @@ export const CreatePostsScreen = () => {
   // Camera permission
   useEffect(() => {
     // console.log("useEffect");
-    (async () => {
-      let { status: cameraStatus } =
-        await Camera.requestCameraPermissionsAsync();
-      if (cameraStatus !== "granted") {
-        console.log("Permission to camera access was denied!");
-      }
-      console.log("cameraStatus :>> ", cameraStatus);
+    if (!photoGeo) {
+      // console.log("photoGeo>>>>>>> ", photoGeo);
 
-      await MediaLibrary.requestPermissionsAsync();
-      setHasCameraPermission(cameraStatus === "granted");
+      (async () => {
+        let { status: cameraStatus } =
+          await Camera.requestCameraPermissionsAsync();
+        if (cameraStatus !== "granted") {
+          console.log("Permission to camera access was denied!");
+        }
+        console.log("cameraStatus :>> ", cameraStatus);
 
-      let { status: locationStatus } =
-        await Location.requestForegroundPermissionsAsync();
+        await MediaLibrary.requestPermissionsAsync();
+        setHasCameraPermission(cameraStatus === "granted");
 
-      if (locationStatus !== "granted") {
-        console.log("Permission to access location was denied!");
-      }
-      console.log("locationStatus :>> ", locationStatus);
+        let { status: locationStatus } =
+          await Location.requestForegroundPermissionsAsync();
 
-      const location = await Location.getCurrentPositionAsync({});
-      console.log("location :>> ", location && "UPS!!!");
+        if (locationStatus !== "granted") {
+          console.log("Permission to access location was denied!");
+        }
+        // console.log("locationStatus :>> ", locationStatus);
 
-      if (location) {
-        setPhotoLocation({
-          latitude: location?.coords?.latitude ?? null,
-          longitude: location?.coords?.longitude ?? null,
-        });
-        const geo = await Location.reverseGeocodeAsync({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        });
-        console.log("geo :>> ", geo);
-        setPhotoGeo({ city: geo[0].city, country: geo[0].country });
-      }
-    })();
+        const location = await Location.getCurrentPositionAsync({});
+        // console.log("location :>> ", location && "UPS!!!");
+
+        if (location) {
+          setPhotoLocation({
+            latitude: location?.coords?.latitude ?? null,
+            longitude: location?.coords?.longitude ?? null,
+          });
+          const geo = await Location.reverseGeocodeAsync({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+          // console.log("geo :>> ", geo);
+          setPhotoGeo({ city: geo[0].city, country: geo[0].country });
+        }
+      })();
+    }
   }, []);
 
   const closeKeyBoard = () => {

@@ -44,14 +44,14 @@ export const PostsList = function () {
     onSnapshot(dbCollection.posts, (data) => {
       const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPosts(posts);
-      console.log("posts :>> ", posts);
+      // console.log("posts :>> ", posts);
     });
   };
 
   // get posts from firebase
   useEffect(() => {
     getPosts();
-    console.log("useEffect posts :>> ", posts);
+    // console.log("useEffect posts :>> ", posts);
   }, []);
 
   return (
@@ -119,23 +119,36 @@ export const PostsList = function () {
                 {/* to Map */}
                 <TouchableOpacity
                   style={styles.postLocation}
-                  activeOpacity={0.7}
-                  onPress={() =>
-                    navigation.navigate("MapScreen", {
-                      coords: {
-                        latitude: item.photoLocation.latitude,
-                        longitude: item.photoLocation.longitude,
-                      },
-                      place: item.place,
-                      description: item.description,
-                    })
+                  activeOpacity={
+                    item?.photoLocation?.latitude ||
+                    item?.photoLocation?.longitude
+                      ? 0.7
+                      : 1
                   }
+                  onPress={() => {
+                    if (
+                      item?.photoLocation?.latitude ||
+                      item?.photoLocation?.longitude
+                    ) {
+                      navigation.navigate("MapScreen", {
+                        coords: {
+                          latitude: item.photoLocation.latitude,
+                          longitude: item.photoLocation.longitude,
+                        },
+                        place: item.place,
+                        description: item.description,
+                      });
+                    }
+                  }}
                 >
-                  <SimpleLineIcons
-                    name="location-pin"
-                    size={24}
-                    color="#BDBDBD"
-                  />
+                  {(item?.photoLocation?.latitude ||
+                    item?.photoLocation?.longitude) && (
+                    <SimpleLineIcons
+                      name="location-pin"
+                      size={24}
+                      color="#BDBDBD"
+                    />
+                  )}
                   <Text style={styles.locationText}>{item.place}</Text>
                 </TouchableOpacity>
               </View>
