@@ -3,15 +3,18 @@ import { View, ImageBackground, StyleSheet } from "react-native";
 import { DefaultUserIcon } from "./DefaultUserIcon";
 
 export const Avatar = ({ uri, size = 60, ...props }) => {
+  const noAvatar = uri === "null" || uri === null || uri === "";
   return (
     <View
       style={[
         { ...styles.avatarThumb, width: size, height: size },
-        uri ?? styles.noAvatarThumb,
+        noAvatar && styles.noAvatarThumb,
       ]}
     >
       <ImageBackground style={styles.avatar} source={{ uri: uri }}>
-        {!uri && <DefaultUserIcon color="#BDBDBD" size={size / 2} {...props} />}
+        {noAvatar && (
+          <DefaultUserIcon color="#BDBDBD" size={size / 2} {...props} />
+        )}
       </ImageBackground>
     </View>
   );

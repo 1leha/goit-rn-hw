@@ -5,6 +5,7 @@ initAuthState = {
   userName: "",
   email: "",
   avatarURL: null,
+  isUserLogginedIn: false,
 };
 
 export const authSlice = createSlice({
@@ -23,6 +24,10 @@ export const authSlice = createSlice({
 
     clearAuth(state, _) {
       return { ...state, ...initAuthState };
+    },
+
+    changeUserLoginStatus(state, _) {
+      return { ...state, isUserLogginedIn: payload };
     },
   },
 });

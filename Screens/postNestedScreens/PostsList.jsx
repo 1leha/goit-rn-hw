@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  ImageBackground,
   SafeAreaView,
   FlatList,
   Image,
@@ -11,8 +10,7 @@ import {
 
 import { useState, useEffect } from "react";
 
-import { SimpleLineIcons } from "@expo/vector-icons";
-import { EvilIcons } from "@expo/vector-icons";
+import { EvilIcons, SimpleLineIcons } from "@expo/vector-icons";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -26,10 +24,6 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { addDoc, onSnapshot } from "firebase/firestore";
 import * as dbCollection from "../../db/collections";
 import { Avatar } from "../../src/Avatar";
-
-const DefaultUserIcon = ({ ...props }) => (
-  <Feather name="user" size={24} {...props} />
-);
 
 export const PostsList = function () {
   const [posts, setPosts] = useState([]);
@@ -51,7 +45,7 @@ export const PostsList = function () {
   // get posts from firebase
   useEffect(() => {
     getPosts();
-    console.log("useEffect posts :>> ", posts);
+    // console.log("useEffect posts :>> ", posts);
   }, []);
 
   return (
@@ -119,30 +113,43 @@ export const PostsList = function () {
                 {/* to Map */}
                 <TouchableOpacity
                   style={styles.postLocation}
-                  activeOpacity={0.7}
-                  onPress={() =>
-                    navigation.navigate("MapScreen", {
-                      coords: {
-                        latitude: item.photoLocation.latitude,
-                        longitude: item.photoLocation.longitude,
-                      },
-                      place: item.place,
-                      description: item.description,
-                    })
+                  activeOpacity={
+                    item?.photoLocation?.latitude ||
+                    item?.photoLocation?.longitude
+                      ? 0.7
+                      : 1
                   }
+                  onPress={() => {
+                    if (
+                      item?.photoLocation?.latitude ||
+                      item?.photoLocation?.longitude
+                    ) {
+                      navigation.navigate("MapScreen", {
+                        coords: {
+                          latitude: item.photoLocation.latitude,
+                          longitude: item.photoLocation.longitude,
+                        },
+                        place: item.place,
+                        description: item.description,
+                      });
+                    }
+                  }}
                 >
-                  <SimpleLineIcons
-                    name="location-pin"
-                    size={24}
-                    color="#BDBDBD"
-                  />
+                  {(item?.photoLocation?.latitude ||
+                    item?.photoLocation?.longitude) && (
+                    <SimpleLineIcons
+                      name="location-pin"
+                      size={24}
+                      color="#BDBDBD"
+                    />
+                  )}
                   <Text style={styles.locationText}>{item.place}</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
           keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={<View style={styles.separator}></View>}
+          // ItemSeparatorComponent={<View style={styles.separator}></View>}
         />
       )}
 

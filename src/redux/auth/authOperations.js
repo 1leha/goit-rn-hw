@@ -58,12 +58,20 @@ export const logOutUser = () => async (dispatch, _) => {
   }
 };
 
-export const changeUserState = () => async (dispatch, _) => {
+export const updateUserAvatar = (avatarURL) => async (dispatch, _) => {
   try {
-    await signOut(auth);
-    dispatch(clearAuth());
+    // console.log("User change operation");
+    // console.log("updateUserAvatar avatarURL :>> ", avatarURL);
+    await updateProfile(auth.currentUser, {
+      photoURL: avatarURL,
+    });
 
-    console.log("User successfully logout...");
+    const { uid, displayName, email, photoURL } = auth.currentUser;
+
+    // console.log("updateUserAvatar photoURL :>> ", photoURL);
+    dispatch(
+      updateAuth({ id: uid, userName: displayName, email, avatarURL: photoURL })
+    );
   } catch (error) {
     console.log("error :>> ", error.message);
   }
