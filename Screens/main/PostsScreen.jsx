@@ -41,7 +41,7 @@ export const PostsScreen = function () {
     <SafeAreaView
       style={{
         ...styles.container,
-        paddingBottom: insets.bottom,
+        // paddingBottom: insets.bottom,
       }}
     >
       <PostsNav.Navigator initialRouteName="PostsList">

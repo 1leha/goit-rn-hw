@@ -4,7 +4,8 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
-  TouchableWithoutFeedback,
+  Image,
+  FlatList,
   SafeAreaView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -12,25 +13,34 @@ import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Ionicons, Feather } from "@expo/vector-icons";
+import {
+  EvilIcons,
+  Ionicons,
+  Feather,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
 
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { storage } from "../../db/firebaseConfig";
+import { auth, storage } from "../../db/firebaseConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAuth } from "../../src/redux/auth/authSlice";
 import { selectUser } from "../../src/redux/auth/authSellectors";
 import * as operation from "../../src/redux/auth/authOperations";
 import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
 import { useNavigation } from "@react-navigation/native";
+import { onSnapshot, query, where } from "firebase/firestore";
+import * as dbCollection from "../../db/collections";
 
 export const ProfileScreen = function () {
-  const { userName, avatarURL } = useSelector(selectUser);
+  const { id, userName, avatarURL } = useSelector(selectUser);
   const [avatar, setAvatar] = useState(avatarURL);
   const [isAvatarChanged, setIsAvatarChanged] = useState(false);
+  const [posts, setPosts] = useState([]);
 
-  console.log("ProfileScreen avatarURL :>> ", avatarURL);
-  console.log("ProfileScreen avatar: ", avatar);
+  // console.log("ProfileScreen avatarURL :>> ", avatarURL);
+  // console.log("ProfileScreen avatar: ", avatar);
+
   const isNoAvatar = avatarURL === null || avatarURL === "null";
 
   const navigation = useNavigation();
@@ -38,30 +48,39 @@ export const ProfileScreen = function () {
 
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   if (!avatarURL) return;
-  //   setAvatar(avatarURL);
-  // }, []);
+  const getUserPosts = async () => {
+    const userQuery = query(dbCollection.posts, where("uid", "==", id));
+
+    onSnapshot(userQuery, (data) => {
+      const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setPosts(posts);
+      console.log("posts :>> ", posts);
+    });
+  };
 
   useEffect(() => {
     if (!isAvatarChanged) return;
 
-    console.log("Avatar: ", avatar);
+    // console.log("Avatar: ", avatar);
 
     (async () => {
       const avatarURL = avatar
         ? await uploadPhotoToFirebase("avatars", avatar)
         : "null";
-      // console.log("avatarURL :>> ", avatarURL);
 
       dispatch(operation.updateUserAvatar(avatarURL));
-      // setIsAvatarChanged(false);
     })();
   }, [isAvatarChanged]);
 
   useEffect(() => {
     setIsAvatarChanged(false);
   }, [avatarURL]);
+
+  // get posts from firebase
+  useEffect(() => {
+    getUserPosts();
+    // console.log("useEffect posts :>> ", posts);
+  }, []);
 
   //setAvatar
 
@@ -93,8 +112,8 @@ export const ProfileScreen = function () {
     <SafeAreaView
       style={{
         ...styles.container,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
+        // paddingTop: insets.top,
+        // paddingBottom: insets.bottom,
       }}
     >
       <ImageBackground
@@ -138,6 +157,93 @@ export const ProfileScreen = function () {
           </TouchableOpacity>
 
           <Text style={styles.userName}>{userName}</Text>
+
+          {/* posts */}
+          {posts.length > 0 && (
+            <FlatList
+              data={posts}
+              renderItem={({ item }) => (
+                <View style={styles.postCard}>
+                  <View style={styles.postCardThumb}>
+                    <Image
+                      source={{ uri: item.photoURL }}
+                      style={styles.image}
+                    />
+                  </View>
+
+                  <Text style={{ ...styles.description }}>
+                    {item.description}
+                  </Text>
+
+                  <View style={styles.cardFooterWrapper}>
+                    {/* to Comments */}
+                    <TouchableOpacity
+                      style={styles.postComments}
+                      activeOpacity={0.7}
+                      onPress={() =>
+                        navigation.navigate("CommentsScreen", {
+                          postId: item.id,
+                          photo: item.photoURL,
+                        })
+                      }
+                    >
+                      <EvilIcons
+                        name="comment"
+                        size={32}
+                        color={item.comments ? "#FF6C00" : "#BDBDBD"}
+                      />
+                      <Text
+                        style={{
+                          ...styles.commentsQuantity,
+                          color: item.comments ? "#212121" : "#BDBDBD",
+                        }}
+                      >
+                        {item.comments || 0}
+                      </Text>
+                    </TouchableOpacity>
+
+                    {/* to Map */}
+                    <TouchableOpacity
+                      style={styles.postLocation}
+                      activeOpacity={
+                        item?.photoLocation?.latitude ||
+                        item?.photoLocation?.longitude
+                          ? 0.7
+                          : 1
+                      }
+                      onPress={() => {
+                        if (
+                          item?.photoLocation?.latitude ||
+                          item?.photoLocation?.longitude
+                        ) {
+                          navigation.navigate("MapScreen", {
+                            coords: {
+                              latitude: item.photoLocation.latitude,
+                              longitude: item.photoLocation.longitude,
+                            },
+                            place: item.place,
+                            description: item.description,
+                          });
+                        }
+                      }}
+                    >
+                      {(item?.photoLocation?.latitude ||
+                        item?.photoLocation?.longitude) && (
+                        <SimpleLineIcons
+                          name="location-pin"
+                          size={24}
+                          color="#BDBDBD"
+                        />
+                      )}
+                      <Text style={styles.locationText}>{item.place}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+              keyExtractor={(item) => item.id}
+              // ItemSeparatorComponent={<View style={styles.separator}></View>}
+            />
+          )}
         </View>
         <StatusBar style="auto" />
       </ImageBackground>
@@ -258,5 +364,76 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 24,
     right: 24,
+  },
+
+  postCard: {
+    // borderWidth: 1,
+    display: "flex",
+    gap: 8,
+    marginBottom: 32,
+  },
+
+  postCardThumb: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+
+    height: 240,
+
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+
+  image: {
+    flex: 1,
+    height: 240,
+    width: "100%",
+  },
+
+  description: {
+    fontFamily: "Roboto-Medium",
+    fontSize: 16,
+    lineHeight: 19,
+
+    color: "#212121",
+  },
+
+  cardFooterWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+
+    marginTop: 0,
+  },
+
+  postComments: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  commentsQuantity: {
+    fontFamily: "Roboto-Regular",
+    color: "#BDBDBD",
+    fontSize: 16,
+    lineHeight: 19,
+    marginLeft: 9,
+  },
+
+  postLocation: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  locationText: {
+    marginLeft: 8,
+
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
+    textDecorationLine: "underline",
+
+    color: "#212121",
   },
 });

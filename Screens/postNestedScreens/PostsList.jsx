@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  ImageBackground,
   SafeAreaView,
   FlatList,
   Image,
@@ -11,8 +10,7 @@ import {
 
 import { useState, useEffect } from "react";
 
-import { SimpleLineIcons } from "@expo/vector-icons";
-import { EvilIcons } from "@expo/vector-icons";
+import { EvilIcons, SimpleLineIcons } from "@expo/vector-icons";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -27,10 +25,6 @@ import { addDoc, onSnapshot } from "firebase/firestore";
 import * as dbCollection from "../../db/collections";
 import { Avatar } from "../../src/Avatar";
 
-const DefaultUserIcon = ({ ...props }) => (
-  <Feather name="user" size={24} {...props} />
-);
-
 export const PostsList = function () {
   const [posts, setPosts] = useState([]);
   const navigation = useNavigation();
@@ -44,7 +38,7 @@ export const PostsList = function () {
     onSnapshot(dbCollection.posts, (data) => {
       const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPosts(posts);
-      // console.log("posts :>> ", posts);
+      console.log("posts :>> ", posts);
     });
   };
 

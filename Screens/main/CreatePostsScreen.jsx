@@ -7,7 +7,6 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Image,
 } from "react-native";
@@ -30,6 +29,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, onSnapshot } from "firebase/firestore";
 import * as dbCollection from "../../db/collections";
 import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../src/redux/auth/authSellectors";
 
 const initFormState = { description: "", place: "" };
 
@@ -53,6 +54,7 @@ export const CreatePostsScreen = () => {
 
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
+  const { id } = useSelector(selectUser);
   // Camera permission
   useEffect(() => {
     // console.log("useEffect");
@@ -130,6 +132,7 @@ export const CreatePostsScreen = () => {
     const photoURL = await uploadPhotoToFirebase("posts", photo);
 
     await addDoc(dbCollection.posts, {
+      uid: id,
       ...formState,
       photoLocation,
       photoURL,
@@ -152,112 +155,110 @@ export const CreatePostsScreen = () => {
       <SafeAreaView
         style={{
           ...styles.container,
-          paddingBottom: insets.bottom,
+          // paddingBottom: insets.bottom,
         }}
       >
-        {true && (
-          <View style={styles.pageWrapper}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "heigh"}
-            >
-              <View style={styles.form}>
-                <View style={styles.uploadImageContainer}>
-                  <View style={styles.imageContainer}>
-                    {photo ? (
-                      <Image style={styles.image} source={{ uri: photo }} />
-                    ) : (
-                      <Camera
-                        style={styles.camera}
-                        ref={setCameraRef}
-                        type={cameraType}
-                        ratio="1:1"
-                      />
-                    )}
+        <View style={styles.pageWrapper}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "heigh"}
+          >
+            <View style={styles.form}>
+              <View style={styles.uploadImageContainer}>
+                <View style={styles.imageContainer}>
+                  {photo ? (
+                    <Image style={styles.image} source={{ uri: photo }} />
+                  ) : (
+                    <Camera
+                      style={styles.camera}
+                      ref={setCameraRef}
+                      type={cameraType}
+                      ratio="1:1"
+                    />
+                  )}
 
-                    <TouchableOpacity
-                      activeOpacity={photo || cameraRef ? 0.7 : 1}
-                      onPress={takePhoto}
-                      style={[
-                        styles.cameraIconContainer,
-                        (photo || cameraRef) && {
-                          backgroundColor: "#FFFFFF55",
-                        },
-                      ]}
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={photo ? "#FFFFFF" : "#BDBDBD"}
-                      />
-                    </TouchableOpacity>
-                  </View>
-
-                  <Text style={{ ...styles.photoText }}>
-                    {photo ? "Редактировать фото" : "Загрузите фото"}
-                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={photo || cameraRef ? 0.7 : 1}
+                    onPress={takePhoto}
+                    style={[
+                      styles.cameraIconContainer,
+                      (photo || cameraRef) && {
+                        backgroundColor: "#FFFFFF55",
+                      },
+                    ]}
+                  >
+                    <MaterialIcons
+                      name="camera-alt"
+                      size={24}
+                      color={photo ? "#FFFFFF" : "#BDBDBD"}
+                    />
+                  </TouchableOpacity>
                 </View>
+
+                <Text style={{ ...styles.photoText }}>
+                  {photo ? "Редактировать фото" : "Загрузите фото"}
+                </Text>
+              </View>
+              <TextInput
+                placeholder="Название..."
+                placeholderTextColor="#BDBDBD"
+                style={[
+                  { ...styles.textInputs },
+                  isDescriptionFocused && styles.inputIsFocused,
+                ]}
+                onFocus={onFocusDescriptionHandler}
+                onBlur={() => setIsDescriptionFocused(false)}
+                onChangeText={(value) =>
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    description: value,
+                  }))
+                }
+                value={formState.description}
+              />
+
+              <View style={styles.placeInputContainer}>
+                <SimpleLineIcons
+                  style={styles.placeIcon}
+                  name="location-pin"
+                  size={24}
+                  color="#BDBDBD"
+                />
+
                 <TextInput
-                  placeholder="Название..."
+                  placeholder="Местность..."
                   placeholderTextColor="#BDBDBD"
-                  style={[
-                    { ...styles.textInputs },
-                    isDescriptionFocused && styles.inputIsFocused,
-                  ]}
-                  onFocus={onFocusDescriptionHandler}
-                  onBlur={() => setIsDescriptionFocused(false)}
+                  style={{ ...styles.placeInput }}
+                  onFocus={onFocusPlaceHandler}
+                  onBlur={() => setIsPlaceFocused(false)}
                   onChangeText={(value) =>
                     setFormState((prevState) => ({
                       ...prevState,
-                      description: value,
+                      place: value,
                     }))
                   }
-                  value={formState.description}
+                  value={formState.place}
                 />
-
-                <View style={styles.placeInputContainer}>
-                  <SimpleLineIcons
-                    style={styles.placeIcon}
-                    name="location-pin"
-                    size={24}
-                    color="#BDBDBD"
-                  />
-
-                  <TextInput
-                    placeholder="Местность..."
-                    placeholderTextColor="#BDBDBD"
-                    style={{ ...styles.placeInput }}
-                    onFocus={onFocusPlaceHandler}
-                    onBlur={() => setIsPlaceFocused(false)}
-                    onChangeText={(value) =>
-                      setFormState((prevState) => ({
-                        ...prevState,
-                        place: value,
-                      }))
-                    }
-                    value={formState.place}
-                  />
-                </View>
-
-                <CustomButton
-                  bgColor={photo ? "#FF6C00" : "#F6F6F6"}
-                  textColor={photo ? "#FFFFFF" : "#BDBDBD"}
-                  activeOpacity={photo ? 0.7 : 1}
-                  onPress={publicPost}
-                >
-                  Опубликовать
-                </CustomButton>
               </View>
-            </KeyboardAvoidingView>
 
-            <TouchableOpacity
-              onPress={clearPost}
-              activeOpacity={photo ? 0.7 : 1}
-              style={styles.deleteButton}
-            >
-              <Feather name="trash-2" size={24} color="#BDBDBD" />
-            </TouchableOpacity>
-          </View>
-        )}
+              <CustomButton
+                bgColor={photo ? "#FF6C00" : "#F6F6F6"}
+                textColor={photo ? "#FFFFFF" : "#BDBDBD"}
+                activeOpacity={photo ? 0.7 : 1}
+                onPress={publicPost}
+              >
+                Опубликовать
+              </CustomButton>
+            </View>
+          </KeyboardAvoidingView>
+
+          <TouchableOpacity
+            onPress={clearPost}
+            activeOpacity={photo ? 0.7 : 1}
+            style={styles.deleteButton}
+          >
+            <Feather name="trash-2" size={24} color="#BDBDBD" />
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
