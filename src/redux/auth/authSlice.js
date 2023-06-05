@@ -26,11 +26,12 @@ export const authSlice = createSlice({
       return { ...state, ...initAuthState };
     },
 
-    changeUserLoginStatus(state, _) {
+    changeUserLoginStatus(state, { payload }) {
       return { ...state, isUserLogginedIn: payload };
     },
   },
 });
 
-export const { updateAuth, clearAuth } = authSlice.actions;
+export const { updateAuth, clearAuth, changeUserLoginStatus } =
+  authSlice.actions;
 export const authReducer = authSlice.reducer;

@@ -6,39 +6,27 @@ import { HomeScreen } from "../../Screens/main/HomeScreen";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "../redux/auth/authSellectors";
 import { createStackNavigator } from "@react-navigation/stack";
-import { auth } from "../../db/firebaseConfig";
 import { clearAuth } from "../redux/auth/authSlice";
+import { checkUserAuth } from "../redux/auth/authOperations";
 
 export const AppRouter = () => {
-  const [isUserLogined, setIsUserLogined] = useState(auth.currentUser);
   const dispatch = useDispatch();
 
-  const user = useSelector(selectUser);
-  // console.log("user :>> ", user);
-  // console.log("auth.currentUser :>> ", auth.currentUser);
-  // console.log("isUserLogined :>> ", isUserLogined);
+  const { isUserLogginedIn } = useSelector(selectUser);
 
   useEffect(() => {
-    if (!isUserLogined) {
+    dispatch(checkUserAuth());
+    console.log("isUserLogginedIn :>> ", isUserLogginedIn);
+    if (!isUserLogginedIn) {
       dispatch(clearAuth());
     }
   }, []);
-
-  useEffect(() => {
-    console.log("useEffect AppRouter", user.id);
-
-    // if (!isUserLogined) {
-    //   dispatch(clearAuth());
-    // }
-
-    setIsUserLogined(auth.currentUser);
-  }, [user]);
 
   const AuthNav = createStackNavigator();
 
   return (
     <>
-      {isUserLogined ? (
+      {isUserLogginedIn ? (
         <HomeScreen />
       ) : (
         <AuthNav.Navigator initialRouteName="Login">
