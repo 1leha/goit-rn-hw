@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { RegistrationScreen } from "../src/Screens/auth/RegistrationScreen";
 import { LoginScreen } from "../src/Screens/auth/LoginScreen";
 import { HomeScreen } from "../src/Screens/main/HomeScreen";
@@ -13,6 +13,8 @@ export const AppRouter = () => {
   const dispatch = useDispatch();
 
   const { isUserLogginedIn } = useSelector(selectUser);
+
+  console.log("isUserLogginedIn :>> ", isUserLogginedIn);
 
   useEffect(() => {
     dispatch(checkUserAuth());

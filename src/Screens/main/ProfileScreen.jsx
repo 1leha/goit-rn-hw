@@ -27,6 +27,7 @@ import { uploadPhotoToFirebase } from "../../helpers/uploadPhotoToFirebase";
 import { useNavigation } from "@react-navigation/native";
 import { deleteDoc, doc, onSnapshot, query, where } from "firebase/firestore";
 import * as dbCollection from "../../../db/collections";
+import { PostList } from "../../PostList";
 
 export const ProfileScreen = function () {
   const { id, userName, avatarURL } = useSelector(selectUser);
@@ -144,103 +145,7 @@ export const ProfileScreen = function () {
           <Text style={styles.userName}>{userName}</Text>
 
           {/* posts */}
-          {posts.length > 0 && (
-            <FlatList
-              data={posts}
-              renderItem={({ item }) => (
-                <View style={styles.postCard}>
-                  {/* delete posts button */}
-                  <TouchableOpacity
-                    style={styles.removePostButton}
-                    activeOpacity={0.7}
-                    onPress={() => deletePost(item.id)}
-                  >
-                    <Ionicons
-                      style={styles.removePostButtonIcon}
-                      name="add-outline"
-                      size={25}
-                    />
-                  </TouchableOpacity>
-
-                  <View style={styles.postCardThumb}>
-                    <Image
-                      source={{ uri: item.photoURL }}
-                      style={styles.image}
-                    />
-                  </View>
-
-                  <Text style={{ ...styles.description }}>
-                    {item.description}
-                  </Text>
-
-                  <View style={styles.cardFooterWrapper}>
-                    {/* to Comments */}
-                    <TouchableOpacity
-                      style={styles.postComments}
-                      activeOpacity={0.7}
-                      onPress={() =>
-                        navigation.navigate("CommentsScreen", {
-                          postId: item.id,
-                          photo: item.photoURL,
-                        })
-                      }
-                    >
-                      <EvilIcons
-                        name="comment"
-                        size={32}
-                        color={item.comments ? "#FF6C00" : "#BDBDBD"}
-                      />
-                      <Text
-                        style={{
-                          ...styles.commentsQuantity,
-                          color: item.comments ? "#212121" : "#BDBDBD",
-                        }}
-                      >
-                        {item.comments || 0}
-                      </Text>
-                    </TouchableOpacity>
-
-                    {/* to Map */}
-                    <TouchableOpacity
-                      style={styles.postLocation}
-                      activeOpacity={
-                        item?.photoLocation?.latitude ||
-                        item?.photoLocation?.longitude
-                          ? 0.7
-                          : 1
-                      }
-                      onPress={() => {
-                        if (
-                          item?.photoLocation?.latitude ||
-                          item?.photoLocation?.longitude
-                        ) {
-                          navigation.navigate("MapScreen", {
-                            coords: {
-                              latitude: item.photoLocation.latitude,
-                              longitude: item.photoLocation.longitude,
-                            },
-                            place: item.place,
-                            description: item.description,
-                          });
-                        }
-                      }}
-                    >
-                      {(item?.photoLocation?.latitude ||
-                        item?.photoLocation?.longitude) && (
-                        <SimpleLineIcons
-                          name="location-pin"
-                          size={24}
-                          color="#BDBDBD"
-                        />
-                      )}
-                      <Text style={styles.locationText}>{item.place}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              keyExtractor={(item) => item.id}
-            />
-          )}
+          {posts.length > 0 && <PostList posts={posts} showDeletePostButton />}
         </View>
         <StatusBar style="auto" />
       </ImageBackground>

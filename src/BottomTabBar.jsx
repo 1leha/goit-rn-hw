@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 
 export const BottomTabBar = ({ state, descriptors, navigation }) => {

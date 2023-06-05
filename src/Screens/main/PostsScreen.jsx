@@ -1,10 +1,8 @@
 import { StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
 
-import { useState, useEffect } from "react";
-
 import { useNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { PostsList } from "../postNestedScreens/PostsList";
+import { PostsListScreen } from "../postNestedScreens/PostsListScreen";
 import { MapScreen } from "../postNestedScreens/MapScreen";
 import { CommentsScreen } from "../postNestedScreens/CommentsScreen";
 
@@ -28,10 +26,10 @@ export const PostsScreen = function () {
         ...styles.container,
       }}
     >
-      <PostsNav.Navigator initialRouteName="PostsList">
+      <PostsNav.Navigator initialRouteName="PostsListScreen">
         <PostsNav.Screen
-          name="PostsList"
-          component={PostsList}
+          name="PostsListScreen"
+          component={PostsListScreen}
           options={{
             headerShown: true,
             tabBarStyle: { display: "none" },
@@ -68,7 +66,7 @@ export const PostsScreen = function () {
                 style={{ marginLeft: 16 }}
                 activeOpacity={0.7}
                 onPress={() => {
-                  navigation.navigate("PostsList");
+                  navigation.navigate("PostsListScreen");
                 }}
               >
                 <Ionicons name="arrow-back-outline" size={24} color="#BDBDBD" />
@@ -92,7 +90,7 @@ export const PostsScreen = function () {
                 style={{ marginLeft: 16 }}
                 activeOpacity={0.5}
                 onPress={() => {
-                  navigation.navigate("PostsList");
+                  navigation.navigate("PostsListScreen");
                 }}
               >
                 <Ionicons name="arrow-back-outline" size={24} color="#BDBDBD" />
