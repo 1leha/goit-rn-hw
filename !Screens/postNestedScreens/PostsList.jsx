@@ -14,7 +14,6 @@ import { EvilIcons, SimpleLineIcons } from "@expo/vector-icons";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/core";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../src/redux/auth/authSellectors";
