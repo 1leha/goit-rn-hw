@@ -143,7 +143,7 @@ export const CreatePostsScreen = () => {
       comments: 0,
     });
 
-    navigation.navigate("PostsList");
+    navigation.navigate("PostsScreen");
 
     setPhoto(null);
     setFormState(initFormState);
