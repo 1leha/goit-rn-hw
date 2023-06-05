@@ -4,28 +4,20 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
-  Image,
-  FlatList,
   SafeAreaView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 import { useEffect, useState } from "react";
 
-import {
-  EvilIcons,
-  Ionicons,
-  Feather,
-  SimpleLineIcons,
-} from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 
 import { StatusBar } from "expo-status-bar";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "../../redux/auth/authSellectors";
 import * as operation from "../../redux/auth/authOperations";
 import { uploadPhotoToFirebase } from "../../helpers/uploadPhotoToFirebase";
-import { useNavigation } from "@react-navigation/native";
-import { deleteDoc, doc, onSnapshot, query, where } from "firebase/firestore";
+import { onSnapshot, query, where } from "firebase/firestore";
 import * as dbCollection from "../../../db/collections";
 import { PostList } from "../../PostList";
 
@@ -37,8 +29,6 @@ export const ProfileScreen = function () {
 
   const isNoAvatar = avatarURL === null || avatarURL === "null";
 
-  const navigation = useNavigation();
-
   const dispatch = useDispatch();
 
   const getUserPosts = async () => {
@@ -48,10 +38,6 @@ export const ProfileScreen = function () {
       const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPosts(posts);
     });
-  };
-
-  const deletePost = async (postId) => {
-    await deleteDoc(doc(dbCollection.posts, postId));
   };
 
   useEffect(() => {

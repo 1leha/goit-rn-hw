@@ -14,8 +14,6 @@ export const AppRouter = () => {
 
   const { isUserLogginedIn } = useSelector(selectUser);
 
-  console.log("isUserLogginedIn :>> ", isUserLogginedIn);
-
   useEffect(() => {
     dispatch(checkUserAuth());
     if (!isUserLogginedIn) {
