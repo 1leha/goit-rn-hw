@@ -3,11 +3,14 @@ import { Text, View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { EvilIcons, SimpleLineIcons, Ionicons } from "@expo/vector-icons";
 import { deleteDoc, doc } from "firebase/firestore";
 import * as dbCollection from "../db/collections";
+import { useNavigation } from "@react-navigation/native";
 
 export const PostCard = ({ userData, showDeletePostButton }) => {
   const deletePost = async (postId) => {
     await deleteDoc(doc(dbCollection.posts, postId));
   };
+
+  const navigation = useNavigation();
 
   return (
     <View style={styles.postCard}>
