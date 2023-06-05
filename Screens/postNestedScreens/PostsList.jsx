@@ -19,16 +19,13 @@ import { useNavigation, useRoute } from "@react-navigation/core";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../src/redux/auth/authSellectors";
 
-import { db, storage } from "../../db/firebaseConfig";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { addDoc, onSnapshot } from "firebase/firestore";
+import { onSnapshot } from "firebase/firestore";
 import * as dbCollection from "../../db/collections";
 import { Avatar } from "../../src/Avatar";
 
 export const PostsList = function () {
   const [posts, setPosts] = useState([]);
   const navigation = useNavigation();
-  // const { params } = useRoute();
 
   const insets = useSafeAreaInsets();
 
@@ -38,14 +35,12 @@ export const PostsList = function () {
     onSnapshot(dbCollection.posts, (data) => {
       const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPosts(posts);
-      console.log("posts :>> ", posts);
     });
   };
 
   // get posts from firebase
   useEffect(() => {
     getPosts();
-    // console.log("useEffect posts :>> ", posts);
   }, []);
 
   return (
@@ -149,7 +144,6 @@ export const PostsList = function () {
             </View>
           )}
           keyExtractor={(item) => item.id}
-          // ItemSeparatorComponent={<View style={styles.separator}></View>}
         />
       )}
 
@@ -164,7 +158,6 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingHorizontal: 16,
     backgroundColor: "#FFFFFF",
-    // borderWidth: 1,
   },
 
   main: {
@@ -172,7 +165,6 @@ const styles = StyleSheet.create({
   },
 
   userCard: {
-    // borderWidth: 1,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
@@ -199,7 +191,6 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    // borderWidth: 1,
     flex: 1,
     resizeMode: "cover",
     width: "100%",
@@ -243,7 +234,6 @@ const styles = StyleSheet.create({
   },
 
   postCard: {
-    // borderWidth: 1,
     display: "flex",
     gap: 8,
     marginBottom: 32,

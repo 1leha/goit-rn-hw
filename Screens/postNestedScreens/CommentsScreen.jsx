@@ -68,7 +68,6 @@ export const CommentsScreen = () => {
   }, [postId]);
 
   const publishComment = async () => {
-    // console.log("publishComment", { userId, avatarURL, comment });
     if (!comment) return;
 
     await addDoc(dbCollection.comments(postId), {
@@ -179,7 +178,6 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingHorizontal: 16,
     backgroundColor: "#FFFFFF",
-    // borderWidth: 1,
   },
 
   body: {

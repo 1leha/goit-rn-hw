@@ -1,5 +1,3 @@
-// import React from "react";
-
 import {
   StyleSheet,
   Text,
@@ -17,17 +15,12 @@ import * as ImagePicker from "expo-image-picker";
 
 import { useState } from "react";
 
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
 import { CustomButton } from "../../src/CustomButton";
 import { QuestionButton } from "../../src/QuestionButton";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { storage } from "../../db/firebaseConfig";
-import { useDispatch, useSelector } from "react-redux";
-import { updateAuth } from "../../src/redux/auth/authSlice";
-import { selectUser } from "../../src/redux/auth/authSellectors";
+import { useDispatch } from "react-redux";
 import * as operation from "../../src/redux/auth/authOperations";
 import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
 
@@ -47,9 +40,6 @@ export const RegistrationScreen = function ({ navigation }) {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const [isShowPassword, setIsShowPassword] = useState(false);
-
-  // console.log("userInState :>> ", userInState);
-  // console.log("newUser :>> ", newUser);
 
   const dispatch = useDispatch();
 
@@ -81,15 +71,9 @@ export const RegistrationScreen = function ({ navigation }) {
     const avatarURL = avatar
       ? await uploadPhotoToFirebase("avatars", avatar)
       : null;
-    // navigation.navigate("Home");
-    // console.log("avatarURL :>> ", avatarURL);
-
-    // console.log("submit form :>> ", { ...newUser, avatarURL });
 
     dispatch(operation.registerUser({ ...newUser, avatarURL }));
   };
-
-  //setAvatar
 
   const chooseAvatar = async () => {
     const avatar = await ImagePicker.launchImageLibraryAsync({
@@ -97,7 +81,6 @@ export const RegistrationScreen = function ({ navigation }) {
       allowsEditing: true,
       quality: 0.5,
     });
-    // console.log("avatar :>> ", avatar.assets);
     if (avatar.canceled) return;
 
     setAvatar(avatar.assets[0].uri);
@@ -270,16 +253,12 @@ const styles = StyleSheet.create({
   },
 
   form: {
-    // height: 509,
-
     backgroundColor: "#FFFFFF",
     position: "relative",
 
     paddingTop: 92,
     paddingBottom: 50,
     paddingHorizontal: 16,
-
-    // marginTop: 100,
 
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,

@@ -53,14 +53,12 @@ export const LoginScreen = function ({ navigation }) {
   };
 
   const onSubmitHandler = () => {
-    // console.log("onSubmitHandler userFormState :>> ", userFormState);
     setUserFormState(initialUserState);
     setIsShowPassword(false);
 
     closeKeyBoard();
 
     dispatch(operation.loginUser(userFormState));
-    // navigation.navigate("Home");
   };
 
   const insets = useSafeAreaInsets();
@@ -143,7 +141,6 @@ export const LoginScreen = function ({ navigation }) {
                       onPress={() => setIsShowPassword(!isShowPassword)}
                     >
                       <Text style={{ ...styles.showButtonText }}>Показать</Text>
-                      {/* <Text style={styles.showButtonText}>Показать</Text> */}
                     </TouchableOpacity>
                   </View>
                 </View>

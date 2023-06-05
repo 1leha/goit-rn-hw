@@ -88,6 +88,7 @@ export const CreatePostsScreen = () => {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           });
+
           setPhotoGeo({ city: geo[0].city, country: geo[0].country });
         }
       })();
@@ -411,8 +412,6 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Medium",
     fontSize: 16,
     lineHeight: 19,
-
-    // borderWidth: 1,
   },
 
   deleteButton: {
