@@ -4,7 +4,7 @@ import { PostsScreen } from "./PostsScreen";
 import { CreatePostsScreen } from "./CreatePostsScreen";
 import { ProfileScreen } from "./ProfileScreen";
 
-import { BottomTabBar } from "../../src/BottomTabBar/BottomTabBar";
+import { BottomTabBar } from "../../BottomTabBar";
 import { TouchableOpacity } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";

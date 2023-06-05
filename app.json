@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "goit-rn-hw",
-    "slug": "goit-rn-hw",
+    "name": "photo-traveler",
+    "slug": "photo-traveler",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",

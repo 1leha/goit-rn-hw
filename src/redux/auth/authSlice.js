@@ -23,7 +23,7 @@ export const authSlice = createSlice({
     },
 
     clearAuth(state, _) {
-      return { ...state, ...initAuthState };
+      return initAuthState;
     },
 
     changeUserLoginStatus(state, { payload }) {
