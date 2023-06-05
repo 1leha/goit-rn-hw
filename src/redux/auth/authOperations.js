@@ -11,10 +11,7 @@ import {
 export const checkUserAuth = () => async (dispatch, _) => {
   try {
     onAuthStateChanged(auth, (user) => {
-      console.log("onAuthStateChanged user :>> ", user);
-
       if (user) {
-        console.log("onAuthStateChanged user loginedIn:>> ", user);
         const { uid, displayName, email, photoURL } = user;
         dispatch(
           updateAuth({
@@ -24,7 +21,7 @@ export const checkUserAuth = () => async (dispatch, _) => {
             avatarURL: photoURL,
           })
         );
-        dispatch(changeUserLoginStatus({ isUserLogginedIn: true }));
+        dispatch(changeUserLoginStatus(true));
       }
     });
   } catch (error) {
@@ -84,15 +81,12 @@ export const logOutUser = () => async (dispatch, _) => {
 
 export const updateUserAvatar = (avatarURL) => async (dispatch, _) => {
   try {
-    // console.log("User change operation");
-    // console.log("updateUserAvatar avatarURL :>> ", avatarURL);
     await updateProfile(auth.currentUser, {
       photoURL: avatarURL,
     });
 
     const { uid, displayName, email, photoURL } = auth.currentUser;
 
-    // console.log("updateUserAvatar photoURL :>> ", photoURL);
     dispatch(
       updateAuth({ id: uid, userName: displayName, email, avatarURL: photoURL })
     );

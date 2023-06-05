@@ -38,9 +38,6 @@ export const ProfileScreen = function () {
   const [isAvatarChanged, setIsAvatarChanged] = useState(false);
   const [posts, setPosts] = useState([]);
 
-  // console.log("ProfileScreen avatarURL :>> ", avatarURL);
-  // console.log("ProfileScreen avatar: ", avatar);
-
   const isNoAvatar = avatarURL === null || avatarURL === "null";
 
   const navigation = useNavigation();
@@ -61,8 +58,6 @@ export const ProfileScreen = function () {
   useEffect(() => {
     if (!isAvatarChanged) return;
 
-    // console.log("Avatar: ", avatar);
-
     (async () => {
       const avatarURL = avatar
         ? await uploadPhotoToFirebase("avatars", avatar)
@@ -79,10 +74,7 @@ export const ProfileScreen = function () {
   // get posts from firebase
   useEffect(() => {
     getUserPosts();
-    // console.log("useEffect posts :>> ", posts);
   }, []);
-
-  //setAvatar
 
   const chooseAvatar = async () => {
     const avatar = await ImagePicker.launchImageLibraryAsync({
@@ -90,7 +82,6 @@ export const ProfileScreen = function () {
       allowsEditing: true,
       quality: 0.5,
     });
-    // console.log("avatar :>> ", avatar.assets);
     if (avatar.canceled) return;
 
     setAvatar(avatar.assets[0].uri);
@@ -100,8 +91,6 @@ export const ProfileScreen = function () {
   const removeAvatar = () => {
     setAvatar(null);
     setIsAvatarChanged(true);
-
-    // console.log("removeAvatar");
   };
 
   const logOut = () => {
@@ -112,8 +101,6 @@ export const ProfileScreen = function () {
     <SafeAreaView
       style={{
         ...styles.container,
-        // paddingTop: insets.top,
-        // paddingBottom: insets.bottom,
       }}
     >
       <ImageBackground
@@ -241,7 +228,6 @@ export const ProfileScreen = function () {
                 </View>
               )}
               keyExtractor={(item) => item.id}
-              // ItemSeparatorComponent={<View style={styles.separator}></View>}
             />
           )}
         </View>
@@ -264,12 +250,9 @@ const styles = StyleSheet.create({
   },
 
   body: {
-    // height: 509,
-
     backgroundColor: "#FFFFFF",
     position: "relative",
 
-    // paddingBottom: 45,
     height: 520,
 
     paddingTop: 92,
@@ -278,8 +261,6 @@ const styles = StyleSheet.create({
 
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-
-    // borderWidth: 1,
   },
 
   avtar: {
@@ -367,7 +348,6 @@ const styles = StyleSheet.create({
   },
 
   postCard: {
-    // borderWidth: 1,
     display: "flex",
     gap: 8,
     marginBottom: 32,

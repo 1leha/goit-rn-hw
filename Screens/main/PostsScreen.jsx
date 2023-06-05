@@ -1,35 +1,20 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  ImageBackground,
-  SafeAreaView,
-  FlatList,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
 
 import { useState, useEffect } from "react";
 
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { PostsList } from "../postNestedScreens/PostsList";
 import { MapScreen } from "../postNestedScreens/MapScreen";
 import { CommentsScreen } from "../postNestedScreens/CommentsScreen";
 
-import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import * as operation from "../../src/redux/auth/authOperations";
 
 export const PostsScreen = function () {
-  // const [posts, setPosts] = useState([]);
-
   const PostsNav = createBottomTabNavigator();
   const navigation = useNavigation();
-
-  const insets = useSafeAreaInsets();
 
   const dispatch = useDispatch();
 
@@ -41,7 +26,6 @@ export const PostsScreen = function () {
     <SafeAreaView
       style={{
         ...styles.container,
-        // paddingBottom: insets.bottom,
       }}
     >
       <PostsNav.Navigator initialRouteName="PostsList">
@@ -132,7 +116,6 @@ const styles = StyleSheet.create({
   },
 
   userCard: {
-    // borderWidth: 1,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
@@ -191,7 +174,6 @@ const styles = StyleSheet.create({
   },
 
   postCard: {
-    // borderWidth: 1,
     display: "flex",
     gap: 8,
   },
