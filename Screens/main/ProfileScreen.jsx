@@ -12,7 +12,6 @@ import * as ImagePicker from "expo-image-picker";
 
 import { useEffect, useState } from "react";
 
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   EvilIcons,
   Ionicons,
@@ -21,15 +20,12 @@ import {
 } from "@expo/vector-icons";
 
 import { StatusBar } from "expo-status-bar";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { auth, storage } from "../../db/firebaseConfig";
 import { useDispatch, useSelector } from "react-redux";
-import { updateAuth } from "../../src/redux/auth/authSlice";
 import { selectUser } from "../../src/redux/auth/authSellectors";
 import * as operation from "../../src/redux/auth/authOperations";
 import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
 import { useNavigation } from "@react-navigation/native";
-import { onSnapshot, query, where } from "firebase/firestore";
+import { deleteDoc, doc, onSnapshot, query, where } from "firebase/firestore";
 import * as dbCollection from "../../db/collections";
 
 export const ProfileScreen = function () {
@@ -41,7 +37,6 @@ export const ProfileScreen = function () {
   const isNoAvatar = avatarURL === null || avatarURL === "null";
 
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
 
   const dispatch = useDispatch();
 
@@ -51,8 +46,11 @@ export const ProfileScreen = function () {
     onSnapshot(userQuery, (data) => {
       const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setPosts(posts);
-      console.log("posts :>> ", posts);
     });
+  };
+
+  const deletePost = async (postId) => {
+    await deleteDoc(doc(dbCollection.posts, postId));
   };
 
   useEffect(() => {
@@ -151,6 +149,19 @@ export const ProfileScreen = function () {
               data={posts}
               renderItem={({ item }) => (
                 <View style={styles.postCard}>
+                  {/* delete posts button */}
+                  <TouchableOpacity
+                    style={styles.removePostButton}
+                    activeOpacity={0.7}
+                    onPress={() => deletePost(item.id)}
+                  >
+                    <Ionicons
+                      style={styles.removePostButtonIcon}
+                      name="add-outline"
+                      size={25}
+                    />
+                  </TouchableOpacity>
+
                   <View style={styles.postCardThumb}>
                     <Image
                       source={{ uri: item.photoURL }}
@@ -354,6 +365,8 @@ const styles = StyleSheet.create({
   },
 
   postCardThumb: {
+    position: "relative",
+
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -415,5 +428,32 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
 
     color: "#212121",
+  },
+
+  removePostButton: {
+    position: "absolute",
+    margin: 0,
+    padding: 0,
+    justifyContent: "center",
+    alignItems: "center",
+
+    width: 30,
+    height: 30,
+
+    right: 10,
+    top: 10,
+
+    backgroundColor: "#FF6C00",
+
+    transform: [{ rotateZ: "45deg" }],
+
+    borderWidth: 1,
+    borderRadius: 50,
+    zIndex: 2,
+  },
+
+  removePostButtonIcon: {
+    color: "#FFFFFF",
+    transform: [{ translateY: 0 }, { translateX: 0 }],
   },
 });
