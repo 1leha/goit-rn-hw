@@ -1,4 +1,4 @@
-import { authSlice, clearAuth, updateAuth } from "./authSlice";
+import { changeUserLoginStatus, clearAuth, updateAuth } from "./authSlice";
 import { auth } from "../../../db/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
@@ -7,6 +7,30 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
+
+export const checkUserAuth = () => async (dispatch, _) => {
+  try {
+    onAuthStateChanged(auth, (user) => {
+      console.log("onAuthStateChanged user :>> ", user);
+
+      if (user) {
+        console.log("onAuthStateChanged user loginedIn:>> ", user);
+        const { uid, displayName, email, photoURL } = user;
+        dispatch(
+          updateAuth({
+            id: uid,
+            userName: displayName,
+            email: email,
+            avatarURL: photoURL,
+          })
+        );
+        dispatch(changeUserLoginStatus({ isUserLogginedIn: true }));
+      }
+    });
+  } catch (error) {
+    console.log("error.message", error.message);
+  }
+};
 
 export const registerUser = (userData) => async (dispatch, _) => {
   const { userName, email, password, avatarURL } = userData;
@@ -23,7 +47,7 @@ export const registerUser = (userData) => async (dispatch, _) => {
       updateAuth({ id: uid, userName: displayName, email, avatarURL: photoURL })
     );
   } catch (error) {
-    console.log("error :>> ", error.message);
+    console.log("registerUser error :>> ", error.message);
   }
 };
 
@@ -32,18 +56,18 @@ export const loginUser = (userData) => async (dispatch, _) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
 
-    const user = auth.currentUser;
+    const { uid, displayName, photoURL } = auth.currentUser;
 
     dispatch(
       updateAuth({
-        id: user.uid,
-        userName: user.displayName,
-        email: user.email,
-        avatarURL: user.photoURL,
+        id: uid,
+        userName: displayName,
+        email: email,
+        avatarURL: photoURL,
       })
     );
   } catch (error) {
-    console.log("error :>> ", error.message);
+    console.log("loginUser error :>> ", error.message);
   }
 };
 

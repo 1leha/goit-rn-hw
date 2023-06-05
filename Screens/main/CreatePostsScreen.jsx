@@ -24,9 +24,7 @@ import { CustomButton } from "../../src/CustomButton";
 
 import { useNavigation } from "@react-navigation/native";
 
-import { db, storage } from "../../db/firebaseConfig";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, onSnapshot } from "firebase/firestore";
+import { addDoc } from "firebase/firestore";
 import * as dbCollection from "../../db/collections";
 import { uploadPhotoToFirebase } from "../../src/helpers/uploadPhotoToFirebase";
 import { useSelector } from "react-redux";
@@ -55,33 +53,31 @@ export const CreatePostsScreen = () => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   const { id } = useSelector(selectUser);
+
   // Camera permission
   useEffect(() => {
-    // console.log("useEffect");
     if (!photoGeo) {
-      // console.log("photoGeo>>>>>>> ", photoGeo);
-
       (async () => {
         let { status: cameraStatus } =
           await Camera.requestCameraPermissionsAsync();
         if (cameraStatus !== "granted") {
           console.log("Permission to camera access was denied!");
         }
-        console.log("cameraStatus :>> ", cameraStatus);
 
         await MediaLibrary.requestPermissionsAsync();
         setHasCameraPermission(cameraStatus === "granted");
+      })();
 
+      //location permission
+      (async () => {
         let { status: locationStatus } =
           await Location.requestForegroundPermissionsAsync();
 
         if (locationStatus !== "granted") {
           console.log("Permission to access location was denied!");
         }
-        // console.log("locationStatus :>> ", locationStatus);
 
         const location = await Location.getCurrentPositionAsync({});
-        // console.log("location :>> ", location && "UPS!!!");
 
         if (location) {
           setPhotoLocation({
@@ -92,11 +88,14 @@ export const CreatePostsScreen = () => {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           });
-          // console.log("geo :>> ", geo);
           setPhotoGeo({ city: geo[0].city, country: geo[0].country });
         }
       })();
     }
+
+    return () => {
+      setCameraRef(null);
+    };
   }, []);
 
   const closeKeyBoard = () => {
@@ -115,16 +114,20 @@ export const CreatePostsScreen = () => {
   };
 
   const takePhoto = async () => {
-    if (cameraRef) {
-      const { uri } = await cameraRef.takePictureAsync();
-      setPhoto(uri);
+    try {
+      if (cameraRef) {
+        const { uri } = await cameraRef.takePictureAsync();
+        setPhoto(uri);
 
-      setFormState((prevState) => ({
-        ...prevState,
-        place: `${photoGeo?.city ?? "Your city"}, ${
-          photoGeo?.country ?? "Your country"
-        }`,
-      }));
+        setFormState((prevState) => ({
+          ...prevState,
+          place: `${photoGeo?.city ?? "Your city"}, ${
+            photoGeo?.country ?? "Your country"
+          }`,
+        }));
+      }
+    } catch (error) {
+      console.log("Camera error :>> ", error.message);
     }
   };
 
@@ -155,25 +158,34 @@ export const CreatePostsScreen = () => {
       <SafeAreaView
         style={{
           ...styles.container,
-          // paddingBottom: insets.bottom,
         }}
       >
-        <View style={styles.pageWrapper}>
+        <View
+          style={{
+            ...styles.pageWrapper,
+          }}
+        >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "heigh"}
           >
-            <View style={styles.form}>
+            <View
+              style={{
+                ...styles.form,
+              }}
+            >
               <View style={styles.uploadImageContainer}>
                 <View style={styles.imageContainer}>
                   {photo ? (
                     <Image style={styles.image} source={{ uri: photo }} />
                   ) : (
-                    <Camera
-                      style={styles.camera}
-                      ref={setCameraRef}
-                      type={cameraType}
-                      ratio="1:1"
-                    />
+                    hasCameraPermission && (
+                      <Camera
+                        style={styles.camera}
+                        ref={setCameraRef}
+                        type={cameraType}
+                        ratio="4:3"
+                      />
+                    )
                   )}
 
                   <TouchableOpacity
@@ -194,17 +206,24 @@ export const CreatePostsScreen = () => {
                   </TouchableOpacity>
                 </View>
 
-                <Text style={{ ...styles.photoText }}>
+                <Text
+                  style={{
+                    ...styles.photoText,
+                  }}
+                >
                   {photo ? "Редактировать фото" : "Загрузите фото"}
                 </Text>
               </View>
+
               <TextInput
                 placeholder="Название..."
                 placeholderTextColor="#BDBDBD"
-                style={[
-                  { ...styles.textInputs },
-                  isDescriptionFocused && styles.inputIsFocused,
-                ]}
+                style={{
+                  ...styles.textInputs,
+                  borderBottomColor: isDescriptionFocused
+                    ? "#FF6C00"
+                    : "#E8E8E8",
+                }}
                 onFocus={onFocusDescriptionHandler}
                 onBlur={() => setIsDescriptionFocused(false)}
                 onChangeText={(value) =>
@@ -216,7 +235,12 @@ export const CreatePostsScreen = () => {
                 value={formState.description}
               />
 
-              <View style={styles.placeInputContainer}>
+              <View
+                style={{
+                  ...styles.placeInputContainer,
+                  borderBottomColor: isPlaceFocused ? "#FF6C00" : "#E8E8E8",
+                }}
+              >
                 <SimpleLineIcons
                   style={styles.placeIcon}
                   name="location-pin"
@@ -227,7 +251,9 @@ export const CreatePostsScreen = () => {
                 <TextInput
                   placeholder="Местность..."
                   placeholderTextColor="#BDBDBD"
-                  style={{ ...styles.placeInput }}
+                  style={{
+                    ...styles.placeInput,
+                  }}
                   onFocus={onFocusPlaceHandler}
                   onBlur={() => setIsPlaceFocused(false)}
                   onChangeText={(value) =>
@@ -267,7 +293,6 @@ export const CreatePostsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // paddingTop: 32,
     paddingHorizontal: 16,
 
     backgroundColor: "#FFFFFF",
@@ -277,8 +302,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-
-    // borderWidth: 1,
+    gap: 32,
   },
 
   uploadImageContainer: {
@@ -325,7 +349,6 @@ const styles = StyleSheet.create({
   },
 
   cameraIconContainer: {
-    // borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
 
@@ -342,7 +365,6 @@ const styles = StyleSheet.create({
 
     display: "flex",
     gap: 32,
-    height: 600,
   },
 
   photoText: {
@@ -358,8 +380,6 @@ const styles = StyleSheet.create({
 
     color: "#212121",
     backgroundColor: "#FFFFFF",
-
-    borderBottomColor: "#E8E8E8",
     borderBottomWidth: 1,
 
     fontFamily: "Roboto-Medium",

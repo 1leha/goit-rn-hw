@@ -31,6 +31,7 @@ export const HomeScreen = () => {
         options={{
           tabBarShowLabel: false,
           headerShown: false,
+          unmountOnBlur: true,
         }}
         name="PostsScreen"
         component={PostsScreen}
@@ -44,6 +45,7 @@ export const HomeScreen = () => {
           title: "Создать публикацию",
           headerTitleAlign: "center",
           headerTitleStyle: { fontSize: 17, fontWeight: 500 },
+          unmountOnBlur: true,
           headerLeft: () => (
             <TouchableOpacity
               style={{ marginLeft: 16 }}
@@ -64,6 +66,7 @@ export const HomeScreen = () => {
         options={{
           tabBarShowLabel: false,
           headerShown: false,
+          unmountOnBlur: true,
         }}
         name="ProfileScreen"
         component={ProfileScreen}
