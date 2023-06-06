@@ -31,6 +31,7 @@ export const PostsScreen = function () {
           name="PostsListScreen"
           component={PostsListScreen}
           options={{
+            unmountOnBlur: true,
             headerShown: true,
             tabBarStyle: { display: "none" },
             title: "Публикации",
@@ -53,6 +54,7 @@ export const PostsScreen = function () {
           name="MapScreen"
           component={MapScreen}
           options={{
+            unmountOnBlur: true,
             headerShown: true,
             tabBarStyle: { display: "none" },
             title: "Карта",
@@ -79,6 +81,7 @@ export const PostsScreen = function () {
           name="CommentsScreen"
           component={CommentsScreen}
           options={{
+            unmountOnBlur: true,
             title: "Комментарии",
             headerTitleAlign: "center",
             headerTitleStyle: { fontSize: 17, fontWeight: 500 },
